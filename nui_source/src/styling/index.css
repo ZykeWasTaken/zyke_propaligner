@@ -1,0 +1,100 @@
+:root {
+    --text: 255, 255, 255, 0.87;
+    --textMuted: 255, 255, 255, 0.65;
+    --secText: 128, 128, 128, 1;
+
+    --icon: 255, 255, 255, 0.87;
+    --iconMuted: 255, 255, 255, 0.65;
+    --secIcon: 128, 128, 128, 1;
+
+    --dark: 17, 19, 21; /* dark */
+    --dark2: 21, 23, 25; /* lightdark */
+    --dark3: 25, 27, 29; /* darkgrey */
+    --dark4: 29, 31, 33; /* lightdarkgrey */
+
+    --grey: 37, 39, 41; /* grey */
+    --grey2: 41, 43, 45; /* lightergrey */
+    --grey3: 47, 49, 51; /* lightgrey */
+    --grey4: 51, 53, 55; /* lightgrey */
+
+    --blue1: 25, 118, 210; /* blue - Smaller areas & buttons */
+    --blue2: 21, 101, 192; /* blue2 - Large areas */
+    --blue3: 13, 71, 161; /* blue3 */
+
+    --orange2: 245, 124, 0; /* orange */
+    --orange3: 230, 81, 0; /* dark orange */
+
+    --red1: 213, 0, 0; /* red sharp */
+    --red2: 244, 67, 54; /* red */
+    --red3: 198, 40, 40; /* red muted*/
+
+    --green1: 0, 200, 83; /* green sharp*/
+    --green2: 76, 175, 80; /* green */
+    --green3: 46, 125, 50; /* green muted */
+
+    --yellow2: 255, 235, 59;
+
+    --font: "Rubik", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    --xxlborderRadius: 1rem;
+    --xlborderRadius: 0.7rem;
+    --lborderRadius: 0.4rem;
+    --mborderRadius: 0.3rem;
+    --borderRadius: 0.2rem;
+    --sborderRadius: 0.25rem;
+    --xspadding: 0.1rem; /* Extra Small */
+    --spadding: 0.25rem; /* Small */
+    --mpadding: 0.5rem; /* Medium */
+    --mlpadding: 0.75rem; /* Medium Large */
+    --lpadding: 1rem; /* Large */
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-text-size-adjust: 100%;
+    overflow: hidden;
+    font-size: 62.5%;
+}
+
+#root {
+    width: 100vw;
+    height: 100vh;
+}
+
+body {
+    margin: 0;
+}
+
+* {
+    user-select: none;
+    -webkit-user-drag: none;
+}
+
+::-webkit-scrollbar {
+    width: 0;
+    background-color: rgb(var(--grey));
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: rgba(var(--blue2));
+    border-radius: 2px;
+}
+
+.footer {
+    display: flex;
+    align-items: center;
+    justify-content: end;
+    margin: 0.75rem 0 0 0;
+}
+
+@keyframes SkeletonPulsing {
+    0% {
+        background: rgba(var(--dark3), 0.8);
+    }
+    50% {
+        background: rgba(var(--grey), 0.8);
+    }
+    100% {
+        background: rgba(var(--dark3), 0.8);
+    }
+}

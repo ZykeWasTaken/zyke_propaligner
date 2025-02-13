@@ -1,0 +1,28 @@
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.table-container thead th,
+.table-container tbody td,
+.mantine-Text-root {
+    margin: 0;
+    color: rgb(var(--text));
+
+    font-size: 1.6rem;
+    line-height: 1.5;
+    font-weight: 400;
+    font-family: var(--font);
+}
+
+.secText {
+    font-size: 1.2rem;
+}
+
+i,
+.MuiSvgIcon-root,
+.mantine-ActionIcon-root {
+    color: rgb(var(--icon));
+}

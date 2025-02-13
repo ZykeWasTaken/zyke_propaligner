@@ -1,0 +1,117 @@
+.mantine-TextInput-root,
+.mantine-NumberInput-root,
+.mantine-Textarea-root {
+    /* margin-top: 0.75rem; */
+    /* margin-bottom: 0.5rem; */
+    padding: 0.25rem 0;
+    /* margin: 0; */
+}
+
+.mantine-InputWrapper-label {
+    font-family: var(--font);
+    color: rgb(var(--text));
+    font-size: 1.3rem;
+    line-height: 1.5;
+    font-weight: 400;
+}
+
+.mantine-InputWrapper-description {
+    font-family: var(--font);
+    color: rgb(var(--secText));
+    font-size: 1.1rem;
+    line-height: 1;
+    font-weight: 400;
+    margin-top: -0.3rem;
+}
+
+.mantine-Input-input {
+    font-family: var(--font);
+    color: rgb(var(--text));
+    background: rgb(var(--dark4));
+    font-size: 1.3rem;
+    border: 1px solid rgb(var(--grey3));
+    height: fit-content;
+    padding: var(--spadding) var(--mpadding) var(--spadding) var(--mpadding) !important;
+}
+
+.mantine-Input-input[data-with-icon] {
+    padding-left: 2.5rem !important;
+}
+
+.mantine-Input-icon svg {
+    fill: rgb(var(--secIcon));
+}
+
+.mantine-Input-icon {
+    margin: 0rem 0.3rem;
+}
+
+.mantine-Input-input::placeholder {
+    color: rgb(var(--secText));
+    opacity: 0.5;
+}
+
+.mantine-Input-input[data-disabled] {
+    color: rgb(var(--secText)) !important;
+    background: rgb(var(--grey3)) !important;
+}
+
+.mantine-InputWrapper-error {
+    font-family: var(--font);
+    font-size: 1.05rem;
+    font-weight: 500;
+}
+
+.mantine-LoadingOverlay-root svg {
+    width: 3rem !important;
+    height: 3rem !important;
+}
+
+.mantine-Overlay-root {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.mantine-ColorInput-dropdown {
+    background: rgb(var(--grey));
+    outline: none;
+    border: 1px solid rgb(var(--grey3));
+}
+
+.mantine-ColorSwatch-alphaOverlay {
+    background-image: none;
+}
+
+.mantine-Radio-radio {
+    background: rgb(var(--grey));
+    border-color: rgb(var(--grey));
+}
+
+/* Make the spaces proper for inputs inside of a form group */
+.form-group .mantine-TextInput-root,
+.form-group .mantine-NumberInput-input,
+.form-group .mantine-Select-root,
+.form-group .slider-root,
+.form-group .mantine-Textarea-root {
+    padding: 1rem 0 0 0;
+}
+
+.form-group .mantine-Checkbox-root {
+    padding: 0.75rem 0 0 0;
+}
+
+.mantine-InputWrapper-root.focused .mantine-NumberInput-control {
+    border-color: rgb(var(--blue1)) !important;
+}
+
+.mantine-NumberInput-control {
+    border-color: rgb(var(--grey3));
+    transition: border-color 0.1s;
+}
+
+.mantine-Input-rightSection svg {
+    color: rgba(var(--icon));
+}
+
+.mantine-NumberInput-control:hover {
+    background: rgb(var(--grey3)) !important;
+}

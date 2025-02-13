@@ -1,0 +1,100 @@
+.mantine-Select-root {
+    padding: 0.5rem 0 0 0;
+}
+
+.mantine-MultiSelect-input[data-disabled] {
+    color: rgba(var(--secText)) !important;
+    background: rgb(var(--grey3)) !important;
+}
+
+.mantine-Select-dropdown,
+.mantine-MultiSelect-dropdown {
+    background: rgb(var(--dark));
+    border: 1px solid rgb(var(--grey3));
+    border-radius: var(--borderRadius);
+}
+
+.mantine-Select-dropdown .mantine-Select-item,
+.mantine-MultiSelect-dropdown .mantine-MultiSelect-item,
+.mantine-MultiSelect-value span {
+    color: rgba(var(--text));
+    font-weight: 400;
+    font-size: 1.1rem;
+}
+
+.mantine-Select-dropdown
+    .mantine-Select-item[data-hovered="true"]:not([data-selected="true"]),
+.mantine-MultiSelect-dropdown
+    .mantine-MultiSelect-item[data-hovered="true"]:not([data-selected="true"]) {
+    background: rgb(var(--grey));
+}
+
+.mantine-MultiSelect-value {
+    background: rgba(255, 255, 255, 0.075);
+    border-radius: var(--xxlborderRadius);
+    padding: var(--spadding) var(--mlpadding);
+    box-shadow: 0 0 1px 0 rgba(0, 0, 0, 0.5);
+    height: 1.2rem;
+    margin-left: 0.45rem;
+    transition: background 0.2s;
+    margin-left: 0.45rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mantine-MultiSelect-value:hover {
+    cursor: default;
+}
+
+.mantine-MultiSelect-closeIcon {
+    width: 1.3rem !important;
+    height: 1.3rem !important;
+    font-size: 1.3rem !important;
+    margin-left: 0.25rem;
+    cursor: pointer;
+    /* font-weight: 600 !important; */
+}
+
+/* .mantine-MultiSelect-value:hover {
+    background: rgba(244, 67, 54, 0.2);
+} */
+
+.mantine-MultiSelect-value p {
+    color: rgba(var(--text));
+    font-size: 1.05rem;
+    line-height: 1.2;
+    margin: 0;
+    padding: 0;
+    transition: color 0.2s;
+}
+
+/* .mantine-MultiSelect-value:hover p {
+    color: var(--red);
+} */
+
+.mantine-MultiSelect-value span {
+    font-size: 1.05rem;
+}
+
+.mantine-MultiSelect-value span {
+    line-height: 1.2 !important;
+}
+
+/* .mantine-MultiSelect-value svg {
+    width: 100% !important;
+    height: 100% !important;
+} */
+
+.mantine-MultiSelect-value .mantine-CloseButton-root {
+    padding: 0;
+    padding: 0 0 0 0;
+    box-sizing: content-box;
+    margin: 0;
+    border: 0;
+    margin-left: 0.25rem;
+}
+
+.mantine-Select-itemsWrapper {
+    padding: 0.3rem 0.3rem 0.4rem 0.3rem;
+}

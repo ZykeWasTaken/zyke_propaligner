@@ -1,0 +1,38 @@
+---@class PresetData
+---@field id string
+---@field label string
+---@field prop string
+---@field bone number
+---@field dict string
+---@field clip string
+---@field offset Vector3Array
+---@field rotation Vector3Array
+---@field created integer
+
+-- Is the exact same as PresetData, without an id since that will be created
+-- created is also not included, since that will be inserted when it is imported
+---@class ExportData
+---@field label string
+---@field prop string
+---@field bone number
+---@field dict string
+---@field clip string
+---@field offset Vector3Array
+---@field rotation Vector3Array
+
+---@class HistoryData
+---@field prop string
+---@field bone number
+---@field dict string
+---@field clip string
+---@field offset Vector3Array
+---@field rotation Vector3Array
+---@field created OsTime
+
+---@alias OsTime integer
+---@alias AlignmentData {prop: string, bone: number, dict: string, clip: string, offset: vector3, rotation: vector3}
+---@alias Vector3Table table{x: number, y: number, z: number}
+---@alias Vector3Array [number, number, number]
+---@alias PlayerId integer
+---@alias Success boolean
+---@alias JSON string

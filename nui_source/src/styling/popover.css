@@ -1,0 +1,9 @@
+.mantine-Popover-dropdown {
+    background: rgb(var(--dark2));
+    border: 1px solid rgb(var(--grey3));
+    transition: 0.2s;
+}
+
+.mantine-Popover-arrow {
+    border: 1px solid rgb(var(--grey3));
+}

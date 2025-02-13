@@ -1,0 +1,53 @@
+.mantine-Accordion-item {
+    transition: background 0.2s, border 0.2s;
+    border-radius: var(--borderRadius);
+    margin: 0.5rem 0 0 0;
+    border-bottom: none;
+}
+
+.mantine-Accordion-control {
+    transition: background 0.2s, border 0.2s;
+    border: 1px solid rgba(0, 0, 0, 0);
+    padding: var(--spadding) var(--mpadding);
+    border-radius: var(--borderRadius);
+}
+
+.mantine-Accordion-control:hover {
+    background: rgb(var(--dark2));
+}
+
+.mantine-Accordion-control[aria-expanded="true"] {
+    transition: background 0.2s, border 0.2s;
+    background: rgb(var(--grey));
+    border-radius: var(--borderRadius);
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    border: 1px solid rgb(var(--grey3));
+}
+
+.mantine-Accordion-item[data-active] {
+    transition: background 0.2s, border 0.2s;
+    background-color: rgb(var(--dark2));
+}
+
+.mantine-Accordion-content {
+    transition: background 0.2s, border 0.2s;
+    border: 1px solid rgb(var(--grey3));
+    border-top: none;
+    border-end-start-radius: var(--borderRadius);
+    border-end-end-radius: var(--borderRadius);
+    padding: var(--lpadding);
+}
+
+.mantine-Accordion-chevron,
+.mantine-Accordion-chevron svg {
+    /* font-size: 2rem !important; */
+    width: 2rem !important;
+    height: 2rem !important;
+    fill: rgb(var(--icon));
+    color: rgb(var(--icon));
+}
+
+.mantine-Accordion-label {
+    padding: 0;
+}

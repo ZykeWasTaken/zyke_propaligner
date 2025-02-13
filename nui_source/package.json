@@ -1,0 +1,37 @@
+{
+  "name": "gizmo",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.14.0",
+    "@emotion/styled": "^11.14.0",
+    "@mantine/core": "^6.0.21",
+    "@mui/icons-material": "^6.3.1",
+    "@mui/material": "^6.3.1",
+    "@mui/system": "^6.3.1",
+    "@react-three/drei": "^9.65.5",
+    "@react-three/fiber": "^8.12.2",
+    "@tabler/icons": "^3.26.0",
+    "@types/chroma-js": "^3.1.0",
+    "axios": "^1.3.6",
+    "chroma-js": "^3.1.2",
+    "framer-motion": "^11.15.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-icons": "^5.4.0",
+    "three": "^0.151.3"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5",
+    "@vitejs/plugin-react": "^2.2.0",
+    "typescript": "^4.9.5",
+    "vite": "^6.0.7"
+  }
+}

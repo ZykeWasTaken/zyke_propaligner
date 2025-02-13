@@ -1,0 +1,9 @@
+kbd {
+    background: rgb(var(--grey));
+    color: rgba(var(--text));
+    border: 1px solid rgba(var(--grey3));
+    border-bottom: 3px solid rgba(var(--grey3));
+    padding: var(--spadding) var(--mpadding);
+    border-radius: var(--mborderRadius);
+    font-size: 1.4rem;
+}

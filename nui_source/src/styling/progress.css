@@ -1,0 +1,8 @@
+.mantine-Progress-root {
+    background: rgb(var(--dark2)) !important;
+    /* transition: width 2s; */
+}
+
+/* .mantine-Progress-bar {
+    transition: width 2s;
+} */

@@ -1,0 +1,15 @@
+.mantine-Pagination-control {
+    background: rgba(var(--grey));
+    border: 1px solid rgba(var(--grey));
+    color: rgba(var(--text));
+    font-size: 1.2rem;
+}
+
+.mantine-Pagination-control svg {
+    width: 1.4rem !important;
+    height: 1.4rem !important;
+}
+
+.mantine-Pagination-control:not([data-active="true"]):hover {
+    background: rgba(var(--grey3));
+}
