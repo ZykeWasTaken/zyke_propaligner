@@ -209,6 +209,7 @@ function StartEditing(data)
                 SetNuiFocusKeepInput(false)
             end)
         end},
+        {label = "Toggle Off/Rot (When Focus Toggled)", key = "R", func = function() end},
         {label = "Toggle Animation", key = "X", func = function()
             loopingAnimation = not loopingAnimation
 
