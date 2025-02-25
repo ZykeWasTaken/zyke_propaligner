@@ -97,7 +97,7 @@ const PropAlignments = ({
                     onChange={(e) => {
                         setEditingData((prev) => {
                             const rotation: [number, number, number] = [
-                                ...prev.offset,
+                                ...prev.rotation,
                             ];
                             rotation[0] = e;
 
@@ -114,7 +114,7 @@ const PropAlignments = ({
                     onChange={(e) => {
                         setEditingData((prev) => {
                             const rotation: [number, number, number] = [
-                                ...prev.offset,
+                                ...prev.rotation,
                             ];
                             rotation[1] = e;
 
@@ -131,7 +131,7 @@ const PropAlignments = ({
                     onChange={(e) => {
                         setEditingData((prev) => {
                             const rotation: [number, number, number] = [
-                                ...prev.offset,
+                                ...prev.rotation,
                             ];
                             rotation[2] = e;
 
