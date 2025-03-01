@@ -29,8 +29,15 @@
 ---@field rotation Vector3Array
 ---@field created OsTime
 
+---@class AlignmentData
+---@field prop string
+---@field bone integer
+---@field dict string
+---@field clip string
+---@field offset vector3 @TODO: Accept vector tables
+---@field rotation vector3 @TODO: Accept vector tables
+
 ---@alias OsTime integer
----@alias AlignmentData {prop: string, bone: number, dict: string, clip: string, offset: vector3, rotation: vector3}
 ---@alias Vector3Table table{x: number, y: number, z: number}
 ---@alias Vector3Array [number, number, number]
 ---@alias PlayerId integer

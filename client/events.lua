@@ -18,7 +18,7 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
     elseif (event == "StartEditing") then
         Wait(300)
 
-        local isValid, reason = IsValidEditingProps(data)
+        local isValid, reason = IsValidEditingProps(data.prop, data.dict)
         if (not isValid) then
             Z.notify(reason)
             return cb("ok")

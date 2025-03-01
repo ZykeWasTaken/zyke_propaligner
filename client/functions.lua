@@ -1,7 +1,17 @@
+---@type vector3 | nil
 local orgPos = nil
+
+---@type integer | nil
 local prop = nil
+
+---@type boolean
 local editing = false
+
+---@type number
 local raise = 1002.0
+
+---@type table<string, {name: string, keyCode: integer}>
+local keys = Z.keys.getAll()
 
 local function reset()
     if (prop and DoesEntityExist(prop)) then DeleteEntity(prop) end
@@ -20,11 +30,19 @@ function CloseMenu()
     SendNUIMessage({event = "SetOpen", data = false})
 end
 
----@param data {prop: string, bone: number, dict: string, clip: string}
+---@param dict string
+---@param clip string
+---@return boolean
+local function isPlayingAnim(dict, clip)
+    return IsEntityPlayingAnim(PlayerPedId(), dict, clip, 3)
+end
+
+---@param propModel string
+---@param animDict string
 ---@return boolean, string?
-function IsValidEditingProps(data)
-    if (not Z.loadModel(data.prop, true)) then return false, "invalidModel" end
-    if (not Z.loadDict(data.dict, true)) then return false, "invalidDict" end
+function IsValidEditingProps(propModel, animDict)
+    if (not Z.loadModel(propModel, true)) then return false, "invalidModel" end
+    if (not Z.loadDict(animDict, true)) then return false, "invalidDict" end
 
     return true
 end
@@ -75,16 +93,12 @@ end
 
 ---@param data AlignmentData
 function StartEditing(data)
-    local isValid, reason = IsValidEditingProps(data)
+    local isValid, reason = IsValidEditingProps(data.prop, data.dict)
     if (not isValid) then return Z.notify(reason) end
-
-    if (not Z.loadModel(data.prop, true)) then return Z.notify("invalidModel") end
-    if (not Z.loadDict(data.dict, true)) then return Z.notify("invalidDict") end
 
     orgPos = GetEntityCoords(PlayerPedId())
 
     local scaleform = nil
-    local keys = Z.keys.getAll()
     local loopingAnimation = true
     local animSpeedIdx, speedMultiplier = 10, 0.05
     local stoppedAnim = 0
@@ -102,10 +116,6 @@ function StartEditing(data)
     local propOffset = vector3(data.offset.x, data.offset.y, data.offset.z)
     local propRot = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
 
-    local function isPlayingAnim()
-        return IsEntityPlayingAnim(PlayerPedId(), data.dict, data.clip, 3)
-    end
-
     ---@param skipCheck? boolean
     local function ensureAnim(skipCheck)
         if (not loopingAnimation) then return end
@@ -114,11 +124,11 @@ function StartEditing(data)
 
         -- Some delay to allow it to fully stop playing animation before running it again
         if (not skipCheck) then
-            if (not isPlayingAnim() and stoppedAnim == nil) then stoppedAnim = GetGameTimer() end
+            if (not isPlayingAnim(data.dict, data.clip) and stoppedAnim == nil) then stoppedAnim = GetGameTimer() end
             if (stoppedAnim and (GetGameTimer() - stoppedAnim < 1500)) then return end
         end
 
-        if (not isPlayingAnim()) then
+        if (not isPlayingAnim(data.dict, data.clip)) then
             stoppedAnim = nil
 
             local animDur = GetAnimDuration(data.dict, data.clip) * (1.0 / (animSpeedIdx * speedMultiplier))
@@ -126,7 +136,7 @@ function StartEditing(data)
             TaskPlayAnim(ply, data.dict, data.clip, 1.0, 1.0, math.floor(animDur * 1000), 49, nil, nil, nil, nil)
 
             -- Wait for the animation to start playing
-            while (not isPlayingAnim()) do Wait(1) end
+            while (not isPlayingAnim(data.dict, data.clip)) do Wait(1) end
 
             SetEntityAnimSpeed(ply, data.dict, data.clip, animSpeedIdx * speedMultiplier)
         end
