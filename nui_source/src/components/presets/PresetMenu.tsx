@@ -12,17 +12,17 @@ import { callback } from "../utils/nui-events";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import DownloadIcon from "@mui/icons-material/Download";
 import { LoadingOverlay } from "@mantine/core";
-import { EditingData, NewPresetData, PresetData } from "../../types";
+import { EditingData, NewPresetData, Preset } from "../../types";
 
 const PresetMenu: React.FC<{
     getCurrentAlignmentData: () => EditingData;
-    loadPreset: (data: PresetData) => void;
+    loadPreset: (data: Preset) => void;
 }> = ({ getCurrentAlignmentData, loadPreset }) => {
     const T = useTranslation();
     const { modalsOpen } = useModalContext();
     const modalId = "presetMenu";
     const [loading, setLoading] = useState<boolean>(true);
-    const [presets, setPresets] = useState<Array<PresetData>>([]);
+    const [presets, setPresets] = useState<Array<Preset>>([]);
     const [deletionLoading, setDeletionLoading] = useState<boolean>(false);
     const [creationLoading, setCreationLoading] = useState<boolean>(false);
     const [importLoading, setImportLoading] = useState<boolean>(false);
@@ -79,8 +79,8 @@ const PresetMenu: React.FC<{
         setCreationLoading(true);
 
         const data: NewPresetData = {
-            ...getCurrentAlignmentData(),
             label,
+            data: getCurrentAlignmentData(),
         };
 
         const createdPreset = await callback("CreatePreset", data);
@@ -103,10 +103,11 @@ const PresetMenu: React.FC<{
         setCreationLoading(true);
 
         // Created is irrelevant here, because it is overwritten server-side later on
-        const data: Omit<PresetData, "created"> = {
-            ...getCurrentAlignmentData(),
+        const data: Omit<Preset, "created"> = {
             label,
             id,
+            last_used: Date.now(),
+            data: getCurrentAlignmentData(),
         };
 
         const createdPreset = await callback("OverwritePreset", data);

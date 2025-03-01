@@ -2,7 +2,7 @@ import { useTranslation } from "../context/Translation";
 import Button from "./utils/Button";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import { useState } from "react";
-import { callback } from "./utils/nui-events";
+import { callback, send } from "./utils/nui-events";
 
 import { FaBox } from "react-icons/fa6";
 import { PiBoneFill } from "react-icons/pi";
@@ -17,7 +17,7 @@ import { useModalContext } from "../context/ModalContext";
 import History from "./History";
 import { LoadingOverlay } from "@mantine/core";
 import PresetMenu from "./presets/PresetMenu";
-import { EditingData, HistoryData, PresetData } from "../types";
+import { EditingData, HistoryData, Preset } from "../types";
 
 // TODO: Remake bones to be a select with createable search, so there are default but you can make your own, if possible
 
@@ -49,32 +49,12 @@ const AlignmentInputs = () => {
         setSubmitting(true);
         if (e) e.preventDefault();
 
-        // Make sure to translate the values, since there are some weird conversions
-
-        // X = z
-        // Y = y
-        // Z = -x
-        const translatedOffset = [
-            editingData.offset[2],
-            editingData.offset[1],
-            -editingData.offset[0],
-        ];
-
-        // X = -x
-        // Y = z
-        // Z = y
-        const translatedRotation = [
-            -editingData.rotation[0],
-            editingData.rotation[2],
-            editingData.rotation[1],
-        ];
-
         callback(
             "StartEditing",
             {
                 ...editingData,
-                offset: translatedOffset,
-                rotation: translatedRotation,
+                offset: editingData.offset,
+                rotation: editingData.rotation,
             },
             undefined
         ).then(() => {
@@ -100,19 +80,28 @@ const AlignmentInputs = () => {
         }, 300);
     };
 
-    const loadPreset = (data: PresetData) => {
+    const loadPreset = (data: Preset) => {
         setLoading(true);
         closeModal("presetMenu");
+
+        send("OnPresetLoad", data.id);
 
         setTimeout(() => {
             setLoading(false);
             setEditingData({
-                ...data,
-                offset: [data.offset[0], data.offset[1], data.offset[2]],
+                prop: data.data.prop,
+                bone: data.data.bone,
+                dict: data.data.dict,
+                clip: data.data.clip,
+                offset: [
+                    data.data.offset[0],
+                    data.data.offset[1],
+                    data.data.offset[2],
+                ],
                 rotation: [
-                    data.rotation[0],
-                    data.rotation[1],
-                    data.rotation[2],
+                    data.data.rotation[0],
+                    data.data.rotation[1],
+                    data.data.rotation[2],
                 ],
             });
         }, 300);

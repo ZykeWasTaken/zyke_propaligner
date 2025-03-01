@@ -62,15 +62,17 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
 
         return cb(success)
     elseif (event == "ExportPresetJson") then
-        ---@type ExportData
+        ---@type Export
         local preset = {
             label = data.label,
-            prop = data.prop,
-            bone = data.bone,
-            dict = data.dict,
-            clip = data.clip,
-            offset = {data.offset[1] or 0.0, data.offset[2] or 0.0, data.offset[3] or 0.0},
-            rotation = {data.rotation[1] or 0.0, data.rotation[2] or 0.0, data.rotation[3] or 0.0}
+            data = {
+                prop = data.data.prop,
+                bone = data.data.bone,
+                dict = data.data.dict,
+                clip = data.data.clip,
+                offset = {data.data.offset[1] or 0.0, data.data.offset[2] or 0.0, data.data.offset[3] or 0.0},
+                rotation = {data.data.rotation[1] or 0.0, data.data.rotation[2] or 0.0, data.data.rotation[3] or 0.0}
+            },
         }
 
         Z.copy(json.encode(preset))
@@ -80,13 +82,15 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         if (reason) then Z.notify(reason) end
 
         return cb(preset)
+    elseif (event == "OnPresetLoad") then
+        TriggerServerEvent("zyke_propaligner:OnPresetLoad", data)
     end
 
     cb("ok")
 end)
 
 -- After creating a preset, we will be waiting for this event to be sent
----@param data PresetData
+---@param data Preset
 RegisterNetEvent("zyke_propaligner:PresetAdded", function(data)
     SendNUIMessage({
         event = "PresetAdded",

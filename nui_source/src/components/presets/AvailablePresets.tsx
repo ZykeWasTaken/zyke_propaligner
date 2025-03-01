@@ -2,7 +2,7 @@ import { useTranslation } from "../../context/Translation";
 import { Pagination } from "@mantine/core";
 import PresetButton from "./PresetButton";
 import { useConfig } from "../../context/ConfigContext";
-import { PresetData } from "../../types";
+import { Preset } from "../../types";
 
 const AvailablePresets = ({
     presets,
@@ -14,8 +14,8 @@ const AvailablePresets = ({
     totalPresets,
     setPageLoading,
 }: {
-    presets: Array<PresetData>;
-    loadPreset: (data: PresetData) => void;
+    presets: Array<Preset>;
+    loadPreset: (data: Preset) => void;
     overwritePreset: (id: string) => void;
     deletePreset: (id: string) => void;
     page: number;

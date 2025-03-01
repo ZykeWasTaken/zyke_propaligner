@@ -41,7 +41,7 @@ const History = ({
                 style={{
                     display: "grid",
                     gridTemplateColumns: "1fr",
-                    height: "40vh",
+                    maxHeight: "40vh",
                     overflowY: "scroll",
                     minWidth: "45rem",
                 }}

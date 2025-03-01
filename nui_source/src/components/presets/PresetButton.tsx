@@ -9,19 +9,19 @@ import UploadFileIcon from "@mui/icons-material/UploadFile";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { send } from "../utils/nui-events";
 import LabelIcon from "@mui/icons-material/Label";
-import { PresetData } from "../../types";
+import { Preset } from "../../types";
 
 const PresetButton: React.FC<{
-    presetData: PresetData;
+    presetData: Preset;
     label: string;
-    created: number;
-    loadPreset: (data: PresetData) => void;
+    last_used: number;
+    loadPreset: (data: Preset) => void;
     overwritePreset: (id: string) => void;
     deletePreset: (id: string) => void;
 }> = ({
     presetData,
     label,
-    created,
+    last_used,
     loadPreset,
     overwritePreset,
     deletePreset,
@@ -136,7 +136,7 @@ const PresetButton: React.FC<{
                             }}
                         >
                             {T("historyCreated", [
-                                new Date(created * 1000).toLocaleString(),
+                                new Date(last_used).toLocaleString(),
                             ])}
                         </p>
                     </div>

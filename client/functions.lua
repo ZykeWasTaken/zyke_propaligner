@@ -21,6 +21,7 @@ local function reset()
     end
 
     editing = false
+    orgPos = nil
 
     ClearPedTasks(PlayerPedId())
 end
@@ -98,6 +99,9 @@ function StartEditing(data)
 
     orgPos = GetEntityCoords(PlayerPedId())
 
+    local propOffset = vector3(data.offset.x, data.offset.y, data.offset.z)
+    local propRot = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
+
     local scaleform = nil
     local loopingAnimation = true
     local animSpeedIdx, speedMultiplier = 10, 0.05
@@ -105,16 +109,6 @@ function StartEditing(data)
     local buttons = {}
 
     local boneIdx = GetPedBoneIndex(PlayerPedId(), data.bone)
-
-    -- Because of some weird conversions, we have to change some of these values
-    -- I will eventually get around to converting all of it properly, but we'll run it like this for now
-    -- LATEST CONVERSIONS
-    -- data.offset.x = data.offset.z
-    -- data.offset.y = data.offset.y
-    -- data.offset.z = -data.offset.x
-
-    local propOffset = vector3(data.offset.x, data.offset.y, data.offset.z)
-    local propRot = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
 
     ---@param skipCheck? boolean
     local function ensureAnim(skipCheck)
@@ -150,7 +144,7 @@ function StartEditing(data)
         prop = CreateObject(data.prop, plyPos.x, plyPos.y, plyPos.z, false, false, false)
 
         -- Because of some weird conversions, we have to change some of these values
-        AttachEntityToEntity(prop, ply, boneIdx, -propOffset.z, propOffset.y, propOffset.x, -propRot.x, propRot.z, propRot.y, true, true, false, true, 1, true)
+        AttachEntityToEntity(prop, ply, boneIdx, propOffset.x, propOffset.y, propOffset.z, propRot.x, propRot.y, propRot.z, true, true, false, true, 1, true)
     end
 
     FreezeEntityPosition(PlayerPedId(), true)
@@ -184,19 +178,6 @@ function StartEditing(data)
 
     buttons = {
         {label = "Save", key = "ENTER", func = function(keyCode, key, active, disable)
-            print("Saving")
-            print("Offset:", vector3(propOffset.x, propOffset.y, propOffset.z))
-            print("Rotation:", vector3(propRot.x, propRot.y, propRot.z))
-
-            AddToHistory({
-                prop = data.prop,
-                bone = data.bone,
-                dict = data.dict,
-                clip = data.clip,
-                offset = {propOffset.x, propOffset.y, propOffset.z},
-                rotation = {propRot.x, propRot.y, propRot.z}
-            })
-
             exit()
         end},
         {label = "Exit", key = "BACKSPACE", func = function()
@@ -240,8 +221,6 @@ function StartEditing(data)
             if ((animSpeedIdx * speedMultiplier) < speedMultiplier) then animSpeedIdx = 1 end
             if ((animSpeedIdx * speedMultiplier) > 2.0) then animSpeedIdx = math.floor(maxSpeed / speedMultiplier) end
 
-            -- animSpeedIdx = math.floor(animSpeedIdx * 100) / 100
-
             SetEntityAnimSpeed(PlayerPedId(), data.dict, data.clip, animSpeedIdx * speedMultiplier)
             setSpeedLabel()
             ClearPedTasks(PlayerPedId())
@@ -255,20 +234,23 @@ function StartEditing(data)
         event = "setGizmoEntity",
         data = {
             handle = prop,
-            position = vector3(propOffset.x, propOffset.y, propOffset.z + raise),
-            rotation = vector3(propRot.x, propRot.y, propRot.z),
+            -- X = z
+            -- Y = y
+            -- Z = -x
+            position = vector3(data.offset.z, data.offset.y, -data.offset.x + raise),
+
+            -- X = -x
+            -- Y = z
+            -- Z = y
+            rotation = vector3(-data.rotation.x, data.rotation.z, data.rotation.y)
         }
     })
-
-    -- Due to the weird conversions and fuckery, set the propOffset here in the correct order
-    -- This ensures that if we are saving something without moving it, it will still be saved properly, previously it had an incorrect order
-    propOffset = vector3(-propOffset.z, propOffset.y, propOffset.x)
-    propRot = vector3(-propRot.x, propRot.z, propRot.y)
 
     RegisterNUICallback("Eventhandler:moveEntity", function(data, cb)
         data = data.data
         if (not prop or not DoesEntityExist(prop)) then return end
 
+        -- Some conversions to get the correct values
         propOffset = vector3(raise - data.position.z, data.position.y, data.position.x)
         propRot = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
 
@@ -320,11 +302,20 @@ function StartEditing(data)
         Wait(0)
     end
 
-    return {
+    print("Saving")
+    print("Offset:", vector3(propOffset.x, propOffset.y, propOffset.z))
+    print("Rotation:", vector3(propRot.x, propRot.y, propRot.z))
+
+    AddToHistory({
         prop = data.prop,
         bone = data.bone,
         dict = data.dict,
         clip = data.clip,
+        offset = {propOffset.x, propOffset.y, propOffset.z},
+        rotation = {propRot.x, propRot.y, propRot.z}
+    })
+
+    return {
         offset = {propOffset.x, propOffset.y, propOffset.z},
         rotation = {propRot.x, propRot.y, propRot.z}
     }
@@ -370,3 +361,18 @@ end)
 function GetHistory()
     return json.decode(GetResourceKvpString("zyke_propaligner:History") or "[]")
 end
+
+-- RegisterCommand("test_export", function()
+--     ---@type AlignmentData
+--     local data = {
+--         prop = "prop_beer_pissh",
+--         offset = vector3(0.08123698830604, -0.20820142328739, 0.06948586553335),
+--         rotation = vector3(-106.48714447021484, -73.45453643798828, 6.62326574325561),
+--         dict = "mp_player_intdrink",
+--         clip = "loop_bottle",
+--         bone = 18905
+--     }
+
+--     local result = exports["zyke_propaligner"]:StartEditing(data)
+--     print(json.encode(result))
+-- end, false)
