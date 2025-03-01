@@ -122,9 +122,6 @@ const DropDown: React.FC<DropDownProps> = ({
         setHoverIdx(null);
     }, [open]);
 
-    // TODO:
-    // Either accept children and put the menu on top of them, or if no children are provided, anchor the element to an id via portal bs
-
     const [menuDimensions, setMenuDimensions] = useState({
         height: 0,
         width: 0,
