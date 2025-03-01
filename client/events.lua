@@ -31,7 +31,10 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         data.rotation = propRot
 
         CloseMenu()
-        StartEditing(data)
+
+        CreateThread(function()
+            StartEditing(data)
+        end)
 
         return cb("ok")
     elseif (event == "GetHistory") then

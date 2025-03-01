@@ -267,51 +267,60 @@ function StartEditing(data)
     end)
 
     editing = true
-    CreateThread(function()
-        while (editing) do
-            Z.instructionalButtons.draw(scaleform, 0, 0, 0, 0, 0)
+    while (editing) do
+        Z.instructionalButtons.draw(scaleform, 0, 0, 0, 0, 0)
 
-            for _, button in pairs(buttons) do
-                if (type(button.key) == "table") then
-                    ---@diagnostic disable-next-line: param-type-mismatch
-                    for _, key in pairs(button.key) do
-                        local keyCode = keys[key].keyCode
-                        DisableControlAction(0, keyCode, true)
+        for _, button in pairs(buttons) do
+            if (type(button.key) == "table") then
+                ---@diagnostic disable-next-line: param-type-mismatch
+                for _, key in pairs(button.key) do
+                    local keyCode = keys[key].keyCode
+                    DisableControlAction(0, keyCode, true)
 
-                        if (IsDisabledControlJustPressed(0, keyCode)) then
-                            button.func(keyCode, key, button.activate, button.disable)
-                        end
+                    if (IsDisabledControlJustPressed(0, keyCode)) then
+                        button.func(keyCode, key, button.activate, button.disable)
                     end
-
-                    goto continue
                 end
 
-                local keyCode = keys[button.key].keyCode
-                DisableControlAction(0, keyCode, true)
-
-                if (IsDisabledControlJustPressed(0, keyCode)) then
-                    button.func(keyCode, button.key, button.active, button.disable)
-                end
-
-                ::continue::
+                goto continue
             end
 
-            ensureAnim()
+            local keyCode = keys[button.key].keyCode
+            DisableControlAction(0, keyCode, true)
 
-            SendNUIMessage({
-                event = "setCameraPosition",
-                data = {
-                    position = GetFinalRenderedCamCoord(),
-                    rotation = GetFinalRenderedCamRot(0)
-                }
-            })
+            if (IsDisabledControlJustPressed(0, keyCode)) then
+                button.func(keyCode, button.key, button.active, button.disable)
+            end
 
-            DisableIdleCamera(true)
-
-            Wait(0)
+            ::continue::
         end
-    end)
+
+        ensureAnim()
+
+        SendNUIMessage({
+            event = "setCameraPosition",
+            data = {
+                position = GetFinalRenderedCamCoord(),
+                rotation = GetFinalRenderedCamRot(0)
+            }
+        })
+
+        DisableIdleCamera(true)
+
+        Wait(0)
+    end
+
+    return {
+        prop = data.prop,
+        bone = data.bone,
+        dict = data.dict,
+        clip = data.clip,
+        offset = {propOffset.x, propOffset.y, propOffset.z},
+        rotation = {propRot.x, propRot.y, propRot.z}
+    }
 end
+
+exports("StartEditing", StartEditing)
 
 ---@param data {prop: string, bone: number, dict: string, clip: string, offset: Vector3Array, rotation: Vector3Array}
 function AddToHistory(data)
