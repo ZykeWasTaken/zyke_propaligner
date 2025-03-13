@@ -258,8 +258,12 @@ function StartEditing(data)
         cb("ok")
     end)
 
+    local animDur = math.floor(GetAnimDuration(data.dict, data.clip) * 100) / 100
+
     editing = true
     while (editing) do
+        local ply = PlayerPedId()
+
         Z.instructionalButtons.draw(scaleform, 0, 0, 0, 0, 0)
 
         for _, button in pairs(buttons) do
@@ -288,6 +292,8 @@ function StartEditing(data)
         end
 
         ensureAnim()
+
+        Z.drawText(("Anim. Progress: %s/%ss"):format(math.floor(GetEntityAnimCurrentTime(ply, data.dict, data.clip) * animDur * 100) / 100, animDur), 0.9, 0.9, nil, nil, "right")
 
         SendNUIMessage({
             event = "setCameraPosition",
