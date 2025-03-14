@@ -28,3 +28,7 @@ files {
     "locales/*.lua",
     -- "nui_source/hot_reload.html",
 }
+
+dependencies {
+    "zyke_lib",
+}
