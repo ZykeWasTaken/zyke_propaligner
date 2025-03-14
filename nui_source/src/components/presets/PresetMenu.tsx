@@ -12,10 +12,10 @@ import { callback } from "../utils/nui-events";
 import DataObjectIcon from "@mui/icons-material/DataObject";
 import DownloadIcon from "@mui/icons-material/Download";
 import { LoadingOverlay } from "@mantine/core";
-import { EditingData, NewPresetData, Preset } from "../../types";
+import { AlignmentData, NewPresetData, Preset } from "../../types";
 
 const PresetMenu: React.FC<{
-    getCurrentAlignmentData: () => EditingData;
+    getCurrentAlignmentData: () => AlignmentData;
     loadPreset: (data: Preset) => void;
 }> = ({ getCurrentAlignmentData, loadPreset }) => {
     const T = useTranslation();
@@ -54,7 +54,7 @@ const PresetMenu: React.FC<{
         setPageLoading(true);
         setTimeout(() => {
             refreshPresetsForPage(page);
-        }, 300);
+        }, 100);
     }, [modalsOpen[modalId], page]);
 
     const isValidPresetLabel = () => {
@@ -70,7 +70,15 @@ const PresetMenu: React.FC<{
         const trimmed = importData.replace(/ /g, "");
 
         if (trimmed.length <= 0) return false;
-        if (trimmed.length > 300) return false;
+        if (trimmed.length > 5000) return false;
+
+        try {
+            const parsed = JSON.parse(importData);
+            if (!parsed || !parsed.data) return false;
+            if (parsed.data.props.length > 20) return false;
+        } catch {
+            return false;
+        }
 
         return true;
     };
@@ -96,7 +104,7 @@ const PresetMenu: React.FC<{
 
             setLabel("");
             setCreationLoading(false);
-        }, 300);
+        }, 100);
     };
 
     const overwritePreset = async (id: string) => {
@@ -122,7 +130,7 @@ const PresetMenu: React.FC<{
             }
 
             setCreationLoading(false);
-        }, 300);
+        }, 100);
     };
 
     const deletePreset = async (id: string) => {
@@ -136,7 +144,7 @@ const PresetMenu: React.FC<{
             } else {
                 refreshPresetsForPage(page);
             }
-        }, 300);
+        }, 100);
     };
 
     // JSON
@@ -155,7 +163,7 @@ const PresetMenu: React.FC<{
             }
 
             setImportLoading(false);
-        }, 300);
+        }, 100);
     };
 
     return (

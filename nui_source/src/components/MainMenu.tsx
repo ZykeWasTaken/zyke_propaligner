@@ -25,6 +25,9 @@ const MainMenu = () => {
                 title={T("propAlignerTitle")}
                 onClose={() => send("CloseMenu", undefined, undefined)}
                 closeButton
+                modalStyling={{
+                    width: "60rem",
+                }}
             >
                 <AlignmentInputs />
             </Modal>

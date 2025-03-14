@@ -15,20 +15,28 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         })
     elseif (event == "GetStrings") then
         return cb(Translations)
-    elseif (event == "StartEditing") then
-        Wait(300)
+    elseif (event == "Notify") then
+        local isStr = type(data) == "string"
+        local notifyStr <const> = isStr and data or data.string
+        local formatting = not isStr and data.formatting or nil
 
-        local isValid, reason = IsValidEditingProps(data.prop, data.dict)
-        if (not isValid) then
-            Z.notify(reason)
-            return cb("ok")
+        Z.notify(notifyStr, formatting)
+        return cb("ok")
+    elseif (event == "StartEditing") then
+        Wait(100)
+
+        -- Validate & load prop models
+        for i = 1, #data.props do
+            if (not Z.loadModel(data.props[i].prop)) then
+                Z.notify("invalidModel")
+                return cb("ok")
+            end
         end
 
-        local propOffset = vector3(data.offset[1] or 0.0, data.offset[2] or 0.0, data.offset[3] or 0.0)
-        local propRot = vector3(data.rotation[1] or 0.0, data.rotation[2] or 0.0, data.rotation[3] or 0.0)
-
-        data.offset = propOffset
-        data.rotation = propRot
+        -- Validate animation dict & clip
+        local validAnims = IsAnimValid(data.dict, data.clip)
+        if (not validAnims.dict) then Z.notify("invalidDict") return cb("ok") end
+        if (not validAnims.clip) then Z.notify("invalidClip") return cb("ok") end
 
         CloseMenu()
 
@@ -65,14 +73,7 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         ---@type Export
         local preset = {
             label = data.label,
-            data = {
-                prop = data.data.prop,
-                bone = data.data.bone,
-                dict = data.data.dict,
-                clip = data.data.clip,
-                offset = {data.data.offset[1] or 0.0, data.data.offset[2] or 0.0, data.data.offset[3] or 0.0},
-                rotation = {data.data.rotation[1] or 0.0, data.data.rotation[2] or 0.0, data.data.rotation[3] or 0.0}
-            },
+            data = data.data
         }
 
         Z.copy(json.encode(preset))
@@ -84,6 +85,8 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         return cb(preset)
     elseif (event == "OnPresetLoad") then
         TriggerServerEvent("zyke_propaligner:OnPresetLoad", data)
+    elseif (event == "ValidatePropModel") then
+        return cb(Z.loadModel(data, true, 1000))
     end
 
     cb("ok")

@@ -4,3 +4,8 @@ Z.registerCommand(Config.Settings.openCommand, function()
     SetNuiFocus(true, true)
     SendNUIMessage({event = "SetOpen", data = true})
 end, "Open tools to get prop alignments")
+
+-- Temp command in case you want to clear due to the changes to the core structure
+RegisterCommand("wipe_history", function()
+    SetResourceKvp("zyke_propaligner:History", "[]")
+end, false)

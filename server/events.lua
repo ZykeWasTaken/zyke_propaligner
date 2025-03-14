@@ -94,16 +94,25 @@ Z.callback.register("zyke_propaligner:ImportPreset", function(plyId, data)
 
     -- Make sure it has all the values it should have
     if (decoded.label == nil or #decoded.label <= 0 or #decoded.label >= 50) then return false, "invalidJsonImport" end
-    if (type(decoded.data.prop) ~= "string") then return false, "invalidJsonImport" end
-    if (type(decoded.data.bone) ~= "number") then return false, "invalidJsonImport" end
     if (type(decoded.data.dict) ~= "string") then return false, "invalidJsonImport" end
     if (type(decoded.data.clip) ~= "string") then return false, "invalidJsonImport" end
-    if (type(decoded.data.offset) ~= "table") then return false, "invalidJsonImport" end
-    if (decoded.data.offset[1] == nil or decoded.data.offset[2] == nil or decoded.data.offset[3] == nil) then return false, "invalidJsonImport" end
-    if (type(decoded.data.rotation) ~= "table") then return false, "invalidJsonImport" end
-    if (decoded.data.rotation[1] == nil or decoded.data.rotation[2] == nil or decoded.data.rotation[3] == nil) then return false, "invalidJsonImport" end
+
+    local props = decoded.data.props
+    if (not props) then return false, "invalidJsonImport" end
+
+    for i = 1, #props do
+        if (type(props[i].prop) ~= "string" and type(props[i].prop) ~= "number") then return false, "invalidJsonImport" end
+        if (type(props[i].bone) ~= "number") then return false, "invalidJsonImport" end
+
+        local offsets = props[i].offset or {}
+        if (not offsets.x or not offsets.y or not offsets.z) then return false, "invalidJsonImport" end
+
+        local rotations = props[i].rotation or {}
+        if (not rotations.x or not rotations.y or not rotations.z) then return false, "invalidJsonImport" end
+    end
 
     ---@type Preset
+    ---@diagnostic disable-next-line: assign-type-mismatch
     local preset = decoded
     preset.id = createId()
 

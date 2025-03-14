@@ -1,20 +1,20 @@
 ---@type vector3 | nil
 local orgPos = nil
 
----@type integer | nil
-local prop = nil
+---@type EditingPropData[]
+local props = {}
 
 ---@type boolean
 local editing = false
 
 ---@type number
-local raise = 1002.0
-
----@type table<string, {name: string, keyCode: integer}>
-local keys = Z.keys.getAll()
+local playerRaise, propRaise = 1000.0, 1002.0
 
 local function reset()
-    if (prop and DoesEntityExist(prop)) then DeleteEntity(prop) end
+    for i = 1, #props do
+        if (props[i]?.entity and DoesEntityExist(props[i].entity)) then DeleteEntity(props[i].entity) end
+    end
+
     if (orgPos) then
         SetEntityCoords(PlayerPedId(), orgPos.x, orgPos.y, orgPos.z - 0.985, false, false, false, false)
         FreezeEntityPosition(PlayerPedId(), false)
@@ -36,16 +36,6 @@ end
 ---@return boolean
 local function isPlayingAnim(dict, clip)
     return IsEntityPlayingAnim(PlayerPedId(), dict, clip, 3)
-end
-
----@param propModel string
----@param animDict string
----@return boolean, string?
-function IsValidEditingProps(propModel, animDict)
-    if (not Z.loadModel(propModel, true)) then return false, "invalidModel" end
-    if (not Z.loadDict(animDict, true)) then return false, "invalidDict" end
-
-    return true
 end
 
 local function restrictMovementLoop()
@@ -92,23 +82,78 @@ local function restrictMovementLoop()
     DisableControlAction(0, 331, true)
 end
 
+-- Validates if dict and clip are valid
+---@param dict string
+---@param clip string
+---@return {dict: boolean, clip: boolean}
+function IsAnimValid(dict, clip)
+    -- If the dict is not valid, we can't check if clip is valid
+    if (not Z.loadDict(dict, true)) then return {
+        dict = false,
+        clip = false
+    } end
+
+    return {
+        dict = true,
+        clip = GetAnimDuration(dict, clip) ~= 0.0 -- Will return 0.0 if clip is not valid, no native check to validate clips
+    }
+end
+
+---@class ButtonProps
+---@field label string
+---@field getLabel? fun(): string
+---@field key string | string[]
+---@field activate? string @Key to enable this option
+---@field disable? string @Key to disable this option
+---@field forceRender? boolean @If pressed, forcefully re-register the buttons
+---@field func fun(keyCode: integer, key: string, active: string?, disable: string?)
+
 ---@param data AlignmentData
+---@return {offset: Vector3Table, rotation: Vector3Table}[] | nil, FailReason?
 function StartEditing(data)
-    local isValid, reason = IsValidEditingProps(data.prop, data.dict)
-    if (not isValid) then return Z.notify(reason) end
+    -- Validate & load prop models
+    for i = 1, #data.props do
+        if (not Z.loadModel(data.props[i].prop)) then
+            return nil, "invalidModel"
+        end
+    end
+
+    -- Validate animation dict & clip
+    local validAnims = IsAnimValid(data.dict, data.clip)
+    if (not validAnims.dict) then return nil, "invalidDict" end
+    if (not validAnims.clip) then return nil, "invalidClip" end
 
     orgPos = GetEntityCoords(PlayerPedId())
 
-    local propOffset = vector3(data.offset.x, data.offset.y, data.offset.z)
-    local propRot = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
+    ---@type integer
+    local currPropIdx = 1
 
-    local scaleform = nil
+    -- Add all of the props & make sure offsetsa & rotations are numbers
+    for i = 1, #data.props do
+        ---@diagnostic disable-next-line: assign-type-mismatch
+        props[i] = data.props[i]
+
+        for axis, val in pairs(props[i].offset) do
+            props[i].offset[axis] = val + 0.0
+        end
+
+        for axis, val in pairs(props[i].rotation) do
+            props[i].rotation[axis] = val + 0.0
+        end
+    end
+
+    ---@type table
+    local scaleform = Z.instructionalButtons.create()
+
     local loopingAnimation = true
     local animSpeedIdx, speedMultiplier = 10, 0.05
-    local stoppedAnim = 0
-    local buttons = {}
+    local propHighlight = false
 
-    local boneIdx = GetPedBoneIndex(PlayerPedId(), data.bone)
+    local waitBetween = 1500
+    local stoppedAnim = GetGameTimer() - waitBetween
+
+    ---@type ButtonProps[]
+    local buttons = {}
 
     ---@param skipCheck? boolean
     local function ensureAnim(skipCheck)
@@ -118,16 +163,16 @@ function StartEditing(data)
 
         -- Some delay to allow it to fully stop playing animation before running it again
         if (not skipCheck) then
-            if (not isPlayingAnim(data.dict, data.clip) and stoppedAnim == nil) then stoppedAnim = GetGameTimer() end
-            if (stoppedAnim and (GetGameTimer() - stoppedAnim < 1500)) then return end
+            if (not isPlayingAnim(data.dict, data.clip) and stoppedAnim == 0) then stoppedAnim = GetGameTimer() end
+            if (stoppedAnim ~= 0 and (GetGameTimer() - stoppedAnim < waitBetween)) then return end
         end
 
         if (not isPlayingAnim(data.dict, data.clip)) then
-            stoppedAnim = nil
+            stoppedAnim = 0
 
             local animDur = GetAnimDuration(data.dict, data.clip) * (1.0 / (animSpeedIdx * speedMultiplier))
 
-            TaskPlayAnim(ply, data.dict, data.clip, 1.0, 1.0, math.floor(animDur * 1000), 49, nil, nil, nil, nil)
+            TaskPlayAnim(ply, data.dict, data.clip, 1.0, 1.0, math.floor(animDur * 1000), 49, 0.0, false, false, false)
 
             -- Wait for the animation to start playing
             while (not isPlayingAnim(data.dict, data.clip)) do Wait(1) end
@@ -136,35 +181,32 @@ function StartEditing(data)
         end
     end
 
-    local function ensureProp()
-        if (prop and DoesEntityExist(prop)) then DeleteEntity(prop) end
-
+    local function ensureProps()
         local ply = PlayerPedId()
         local plyPos = GetEntityCoords(ply)
-        prop = CreateObject(data.prop, plyPos.x, plyPos.y, plyPos.z, false, false, false)
 
-        -- Because of some weird conversions, we have to change some of these values
-        AttachEntityToEntity(prop, ply, boneIdx, propOffset.x, propOffset.y, propOffset.z, propRot.x, propRot.y, propRot.z, true, true, false, true, 1, true)
+        for i = 1, #data.props do
+            if (not props[i]?.entity or not DoesEntityExist(props[i].entity)) then
+                props[i].entity = CreateObject(props[i].prop, plyPos.x, plyPos.y, plyPos.z, false, false, false)
+            end
+
+            local boneIdx = GetPedBoneIndex(PlayerPedId(), data.props[i].bone)
+
+            AttachEntityToEntity(props[i].entity, ply, boneIdx, props[i].offset.x, props[i].offset.y, props[i].offset.z, props[i].rotation.x, props[i].rotation.y, props[i].rotation.z, true, true, false, true, 1, true)
+        end
     end
 
     FreezeEntityPosition(PlayerPedId(), true)
-    SetEntityCoords(PlayerPedId(), 0.0, 0.0, 1000.0, false, false, false, false)
+    SetEntityCoords(PlayerPedId(), 0.0, 0.0, playerRaise, false, false, false, false)
 
-    local function registerButtons()
-        scaleform = Z.instructionalButtons.register(buttons)
-    end
-
-    local function setSpeedLabel()
-        local speedLabel = ("Speed - %s"):format(tostring(animSpeedIdx * speedMultiplier))
-
-        for idx, button in pairs(buttons) do
-            if (button.speedLabel == true) then
-                button.label = speedLabel
-                break
+    local function getLabels()
+        for i = 1, #buttons do
+            if (buttons[i].getLabel) then
+                buttons[i].label = buttons[i].getLabel()
             end
         end
 
-        registerButtons()
+        scaleform:registerButtons(buttons)
     end
 
     local function exit()
@@ -176,14 +218,43 @@ function StartEditing(data)
         })
     end
 
+    local function setGizmoEntity()
+        SendNUIMessage({
+            event = "setGizmoEntity",
+            data = {
+                handle = props[currPropIdx].entity,
+                -- X = z
+                -- Y = y
+                -- Z = -x
+                position = vector3(props[currPropIdx].offset.z, props[currPropIdx].offset.y, -props[currPropIdx].offset.x + propRaise),
+
+                -- X = -x
+                -- Y = z
+                -- Z = y
+                rotation = vector3(-props[currPropIdx].rotation.x, props[currPropIdx].rotation.z, props[currPropIdx].rotation.y)
+            }
+        })
+    end
+
+    local function highlightCurrent()
+        propHighlight = true
+        SetEntityDrawOutlineColor(255, 255, 255, 255)
+
+        for i = 1, #props do
+            if (props[i]?.entity and DoesEntityExist(props[i].entity)) then
+                SetEntityDrawOutline(props[i].entity, currPropIdx == i and true or false)
+            end
+        end
+    end
+
     buttons = {
-        {label = "Save", key = "ENTER", func = function(keyCode, key, active, disable)
+        {label = T("instruct:save"), key = "ENTER", func = function()
             exit()
         end},
-        {label = "Exit", key = "BACKSPACE", func = function()
+        {label = T("instruct:exit"), key = "BACKSPACE", func = function()
             exit()
         end},
-        {label = "Toggle Focus (Hold)", key = "LEFTSHIFT", func = function(keyCode, key, active, disable)
+        {label = T("instruct:toggleFocus"), key = "LEFTSHIFT", func = function(keyCode)
             SetNuiFocus(true, true)
             SetNuiFocusKeepInput(true)
             SetCursorLocation(0.5, 0.5)
@@ -200,8 +271,8 @@ function StartEditing(data)
                 SetNuiFocusKeepInput(false)
             end)
         end},
-        {label = "Toggle Off/Rot (When Focus Toggled)", key = "R", func = function() end},
-        {label = "Toggle Animation", key = "X", func = function()
+        {label = T("instruct:toggleRot"), key = "R", func = function() end},
+        {label = T("instruct:toggleAnim"), key = "X", func = function()
             loopingAnimation = not loopingAnimation
 
             if (not loopingAnimation) then
@@ -210,51 +281,84 @@ function StartEditing(data)
                 ensureAnim(true)
             end
         end},
-        {speedLabel = true, label = "Speed", key = {"SCROLLDOWN", "SCROLLUP"}, func = function(keyCode, key, active, disable)
-            if (keyCode == 14) then -- Down
-                animSpeedIdx = math.floor(animSpeedIdx - 1)
-            else -- Up
-                animSpeedIdx = math.floor(animSpeedIdx + 1)
+        {label = "Speed", key = {"SCROLLDOWN", "SCROLLUP"},
+            getLabel = function()
+                return T("instruct:speed"):format(tostring(animSpeedIdx * speedMultiplier))
+            end,
+            func = function(keyCode, key)
+                if (key== "SCROLLDOWN") then
+                    animSpeedIdx = math.floor(animSpeedIdx - 1)
+                else
+                    animSpeedIdx = math.floor(animSpeedIdx + 1)
+                end
+
+                local maxSpeed = 2.0
+                if ((animSpeedIdx * speedMultiplier) < speedMultiplier) then animSpeedIdx = 1 end
+                if ((animSpeedIdx * speedMultiplier) > 2.0) then animSpeedIdx = math.floor(maxSpeed / speedMultiplier) end
+
+                SetEntityAnimSpeed(PlayerPedId(), data.dict, data.clip, animSpeedIdx * speedMultiplier)
+                getLabels()
+                ClearPedTasks(PlayerPedId())
             end
+        },
+        {label = "Prop", key = {"UP", "DOWN"},
+            getLabel = function()
+                return T("instruct:currProp"):format(currPropIdx, #props)
+            end,
+            func = function(_, key)
+                local propsLen = #props
+                if (propsLen == 1) then return end
 
-            local maxSpeed = 2.0
-            if ((animSpeedIdx * speedMultiplier) < speedMultiplier) then animSpeedIdx = 1 end
-            if ((animSpeedIdx * speedMultiplier) > 2.0) then animSpeedIdx = math.floor(maxSpeed / speedMultiplier) end
+                if (key == "UP") then
+                    if (currPropIdx == 1) then
+                        currPropIdx = propsLen
+                    else
+                        currPropIdx -= 1
+                    end
+                else
+                    if (currPropIdx == propsLen) then
+                        currPropIdx = 1
+                    else
+                        currPropIdx = propsLen
+                    end
+                end
 
-            SetEntityAnimSpeed(PlayerPedId(), data.dict, data.clip, animSpeedIdx * speedMultiplier)
-            setSpeedLabel()
-            ClearPedTasks(PlayerPedId())
-        end},
+                if (propHighlight) then
+                    highlightCurrent()
+                end
+
+                getLabels()
+                setGizmoEntity()
+            end
+        },
+        {label = "Highlight Current", key = "H", func = function()
+            if (propHighlight) then
+                SetEntityDrawOutline(props[currPropIdx].entity, false)
+                propHighlight = false
+            else
+                highlightCurrent()
+            end
+        end}
     }
 
-    ensureProp()
-    setSpeedLabel()
-
-    SendNUIMessage({
-        event = "setGizmoEntity",
-        data = {
-            handle = prop,
-            -- X = z
-            -- Y = y
-            -- Z = -x
-            position = vector3(data.offset.z, data.offset.y, -data.offset.x + raise),
-
-            -- X = -x
-            -- Y = z
-            -- Z = y
-            rotation = vector3(-data.rotation.x, data.rotation.z, data.rotation.y)
-        }
-    })
+    ensureProps()
+    getLabels()
+    setGizmoEntity()
 
     RegisterNUICallback("Eventhandler:moveEntity", function(data, cb)
         data = data.data
-        if (not prop or not DoesEntityExist(prop)) then return end
+        if (not props[currPropIdx]?.entity or not DoesEntityExist(props[currPropIdx].entity)) then
+            ensureProps()
+            return
+        end
 
         -- Some conversions to get the correct values
-        propOffset = vector3(raise - data.position.z, data.position.y, data.position.x)
-        propRot = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
+        props[currPropIdx].offset = vector3(propRaise - data.position.z, data.position.y, data.position.x)
+        props[currPropIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
 
-        AttachEntityToEntity(prop, PlayerPedId(), boneIdx, propOffset.x, propOffset.y, propOffset.z, propRot.x, propRot.y, propRot.z, true, true, false, true, 1, true)
+        local boneIdx = GetPedBoneIndex(PlayerPedId(), props[currPropIdx].bone)
+
+        AttachEntityToEntity(props[currPropIdx].entity, PlayerPedId(), boneIdx, props[currPropIdx].offset.x, props[currPropIdx].offset.y, props[currPropIdx].offset.z, props[currPropIdx].rotation.x, props[currPropIdx].rotation.y, props[currPropIdx].rotation.z, true, true, false, true, 1, true)
         cb("ok")
     end)
 
@@ -264,32 +368,8 @@ function StartEditing(data)
     while (editing) do
         local ply = PlayerPedId()
 
-        Z.instructionalButtons.draw(scaleform, 0, 0, 0, 0, 0)
-
-        for _, button in pairs(buttons) do
-            if (type(button.key) == "table") then
-                ---@diagnostic disable-next-line: param-type-mismatch
-                for _, key in pairs(button.key) do
-                    local keyCode = keys[key].keyCode
-                    DisableControlAction(0, keyCode, true)
-
-                    if (IsDisabledControlJustPressed(0, keyCode)) then
-                        button.func(keyCode, key, button.activate, button.disable)
-                    end
-                end
-
-                goto continue
-            end
-
-            local keyCode = keys[button.key].keyCode
-            DisableControlAction(0, keyCode, true)
-
-            if (IsDisabledControlJustPressed(0, keyCode)) then
-                button.func(keyCode, button.key, button.active, button.disable)
-            end
-
-            ::continue::
-        end
+        scaleform:render()
+        scaleform:handleButtons()
 
         ensureAnim()
 
@@ -308,28 +388,22 @@ function StartEditing(data)
         Wait(0)
     end
 
-    print("Saving")
-    print("Offset:", vector3(propOffset.x, propOffset.y, propOffset.z))
-    print("Rotation:", vector3(propRot.x, propRot.y, propRot.z))
-
     AddToHistory({
-        prop = data.prop,
-        bone = data.bone,
         dict = data.dict,
         clip = data.clip,
-        offset = {propOffset.x, propOffset.y, propOffset.z},
-        rotation = {propRot.x, propRot.y, propRot.z}
+        props = props
     })
 
     return {
-        offset = {propOffset.x, propOffset.y, propOffset.z},
-        rotation = {propRot.x, propRot.y, propRot.z}
+        dict = data.dict,
+        clip = data.clip,
+        props = props
     }
 end
 
 exports("StartEditing", StartEditing)
 
----@param data {prop: string, bone: number, dict: string, clip: string, offset: Vector3Array, rotation: Vector3Array}
+---@param data AlignmentData
 function AddToHistory(data)
     local history = GetResourceKvpString("zyke_propaligner:History") or "[]"
     history = json.decode(history)

@@ -1,47 +1,38 @@
 import { useTranslation } from "../context/Translation";
 import Button from "./utils/Button";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { callback, send } from "./utils/nui-events";
-
-import { FaBox } from "react-icons/fa6";
-import { PiBoneFill } from "react-icons/pi";
-import { MdAnimation } from "react-icons/md";
 import PropAlignments from "./PropAlignments";
-import NumberInput from "./utils/NumberInput";
-import TextInput from "./utils/TextInput";
-
-import HistoryIcon from "@mui/icons-material/History";
-import ControlPointDuplicateIcon from "@mui/icons-material/ControlPointDuplicate";
 import { useModalContext } from "../context/ModalContext";
 import History from "./History";
-import { LoadingOverlay } from "@mantine/core";
+import { Accordion, LoadingOverlay } from "@mantine/core";
+import { useDebouncedValue } from "@mantine/hooks";
 import PresetMenu from "./presets/PresetMenu";
-import { EditingData, HistoryData, Preset } from "../types";
-
-// TODO: Remake bones to be a select with createable search, so there are default but you can make your own, if possible
+import {
+    AlignmentData,
+    HistoryData,
+    Preset,
+    PropAlignmentData,
+} from "../types";
+import AnimationSection from "./inputs/AnimationSection";
+import AddIcon from "@mui/icons-material/Add";
 
 const AlignmentInputs = () => {
     const T = useTranslation();
     const { openModal, closeModal } = useModalContext();
     const [submitting, setSubmitting] = useState<boolean>(false);
-    const [editingData, setEditingData] = useState<EditingData>({
-        // prop: "prop_ld_flow_bottle",
-        // bone: 18905,
-        // dict: "mp_player_intdrink",
-        // clip: "loop_bottle",
-
-        // offset: [0.122752, -0.038894, 0.033247],
-        // rotation: [-103.202011, -68.066383, 2.814771],
-
-        prop: "",
-        bone: 0,
+    const [editingData, setEditingData] = useState<AlignmentData>({
         dict: "",
         clip: "",
-        offset: [0.0, 0.0, 0.0],
-        rotation: [0.0, 0.0, 0.0],
+        props: [],
     });
+
     const [loading, setLoading] = useState<boolean>(false);
+    const [currProp, setCurrProp] = useState<string | null>(null);
+    const [debouncedPropEditing] = useDebouncedValue(editingData.props, 500);
+    const [hasInvalidModels, setHasInvalidModels] = useState(true);
+    const isFirstRender = useRef(true);
 
     const handleForm = (e?: React.FormEvent<HTMLFormElement>): void => {
         if (submitting) return;
@@ -49,15 +40,7 @@ const AlignmentInputs = () => {
         setSubmitting(true);
         if (e) e.preventDefault();
 
-        callback(
-            "StartEditing",
-            {
-                ...editingData,
-                offset: editingData.offset,
-                rotation: editingData.rotation,
-            },
-            undefined
-        ).then(() => {
+        callback("StartEditing", { ...editingData }, undefined).then(() => {
             setSubmitting(false);
         });
     };
@@ -68,16 +51,8 @@ const AlignmentInputs = () => {
 
         setTimeout(() => {
             setLoading(false);
-            setEditingData({
-                ...data,
-                offset: [data.offset[0], data.offset[1], data.offset[2]],
-                rotation: [
-                    data.rotation[0],
-                    data.rotation[1],
-                    data.rotation[2],
-                ],
-            });
-        }, 300);
+            setEditingData(data);
+        }, 100);
     };
 
     const loadPreset = (data: Preset) => {
@@ -89,27 +64,78 @@ const AlignmentInputs = () => {
         setTimeout(() => {
             setLoading(false);
             setEditingData({
-                prop: data.data.prop,
-                bone: data.data.bone,
                 dict: data.data.dict,
                 clip: data.data.clip,
-                offset: [
-                    data.data.offset[0],
-                    data.data.offset[1],
-                    data.data.offset[2],
-                ],
-                rotation: [
-                    data.data.rotation[0],
-                    data.data.rotation[1],
-                    data.data.rotation[2],
-                ],
+                props: data.data.props,
             });
-        }, 300);
+        }, 100);
     };
 
     const getCurrentAlignmentData = () => {
         return editingData;
     };
+
+    const validateAllProps = async (): Promise<boolean> => {
+        if (editingData.props.length === 0) return true;
+
+        for (let i = 0; i < editingData.props.length; i++) {
+            const prop = editingData.props[i].prop;
+            if (!prop || prop === "") return false;
+
+            const isValid = await callback(
+                "ValidatePropModel",
+                editingData.props[i].prop
+            );
+
+            if (!isValid) return false;
+        }
+
+        return true;
+    };
+
+    const addbaseProp = async () => {
+        if (!(await validateAllProps())) {
+            send("Notify", "invalidModels");
+
+            return;
+        }
+
+        const newProp: PropAlignmentData = {
+            prop: "",
+            bone: 0,
+            offset: { x: 0.0, y: 0.0, z: 0.0 },
+            rotation: { x: 0.0, y: 0.0, z: 0.0 },
+        };
+
+        setEditingData((prev) => ({
+            ...prev,
+            props: [...prev.props, newProp],
+        }));
+
+        setHasInvalidModels(true);
+
+        setTimeout(() => {
+            setCurrProp("prop-" + editingData.props.length);
+        }, 1);
+    };
+
+    // On load, create a base prop & open it
+    useEffect(() => {
+        if (editingData.props.length !== 0) return;
+
+        addbaseProp();
+        setCurrProp("prop-" + editingData.props.length);
+    }, []);
+
+    // Validate all prop models if nothing has been changed in a while
+    useEffect(() => {
+        if (isFirstRender.current) {
+            isFirstRender.current = false;
+            return;
+        }
+
+        validateAllProps().then((val) => setHasInvalidModels(!val));
+    }, [debouncedPropEditing]);
 
     return (
         <>
@@ -132,77 +158,65 @@ const AlignmentInputs = () => {
                 </div>
             </div>
             <form onSubmit={handleForm}>
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "1rem",
-                    }}
-                >
-                    <TextInput
-                        icon={<FaBox />}
-                        label={T("propLabel")}
-                        value={editingData.prop}
-                        onChange={(e) =>
-                            setEditingData((prev) => ({
-                                ...prev,
-                                prop: e.target.value,
-                            }))
-                        }
-                    />
-
-                    <NumberInput
-                        icon={<PiBoneFill />}
-                        label={T("propBone")}
-                        value={editingData.bone}
-                        hideControls
-                        onChange={(e) => {
-                            setEditingData((prev) => ({
-                                ...prev,
-                                bone: e,
-                            }));
-                        }}
-                    />
-                </div>
-                <div
-                    style={{
-                        display: "grid",
-                        gridTemplateColumns: "1fr 1fr",
-                        gap: "1rem",
-                    }}
-                >
-                    <TextInput
-                        icon={<MdAnimation />}
-                        label={T("animationDict")}
-                        value={editingData.dict}
-                        onChange={(e) =>
-                            setEditingData((prev) => ({
-                                ...prev,
-                                dict: e.target.value,
-                            }))
-                        }
-                    />
-                    <TextInput
-                        icon={<MdAnimation />}
-                        label={T("animationClip")}
-                        value={editingData.clip}
-                        onChange={(e) =>
-                            setEditingData((prev) => ({
-                                ...prev,
-                                clip: e.target.value,
-                            }))
-                        }
-                    />
-                </div>
-
-                <PropAlignments
+                <AnimationSection
                     editingData={editingData}
                     setEditingData={setEditingData}
                 />
 
+                <Accordion
+                    value={currProp}
+                    onChange={(id) => {
+                        if (editingData.props.length === 0) return;
+                        if (id === null) return;
+
+                        setCurrProp(id);
+                    }}
+                >
+                    {editingData.props.map((prop, idx) => (
+                        <PropAlignments
+                            key={"prop-" + idx}
+                            idx={idx}
+                            {...prop}
+                            setEditingData={setEditingData}
+                            totalProps={editingData.props.length}
+                            setCurrProp={setCurrProp}
+                        />
+                    ))}
+                </Accordion>
+
+                <div
+                    style={{
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "end",
+                    }}
+                >
+                    <Button
+                        color="rgba(var(--blue2))"
+                        icon={<AddIcon />}
+                        onClick={async () => await addbaseProp()}
+                        disabled={hasInvalidModels}
+                    >
+                        {T(
+                            editingData.props.length > 0
+                                ? "addMoreProps"
+                                : "addFirstProp"
+                        )}
+                    </Button>
+                </div>
+
+                <div
+                    style={{
+                        width: "15rem",
+                        height: "1px",
+                        background: "rgba(var(--grey4))",
+                        margin: "1.25rem auto",
+                    }}
+                />
+
                 <Button
                     icon={<ControlCameraIcon />}
-                    color="var(--blue1)"
+                    color="var(--blue2)"
                     buttonStyling={{
                         width: "100%",
                     }}

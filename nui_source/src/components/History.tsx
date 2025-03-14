@@ -26,7 +26,7 @@ const History = ({
                 setHistory(res);
                 setLoading(false);
             });
-        }, 300);
+        }, 100);
     }, [modalsOpen[modalId]]);
 
     return (
@@ -76,21 +76,26 @@ const History = ({
                                     style={{
                                         display: "flex",
                                         alignItems: "center",
+                                        width: "30rem",
                                     }}
                                 >
                                     <p
+                                        className="truncate"
                                         style={{
                                             fontSize: "1.3rem",
                                         }}
                                     >
-                                        {T("historyModel", [data.prop])}
+                                        {T("historyModel", [
+                                            data.props
+                                                .map((item) => item.prop)
+                                                .join(", "),
+                                        ])}
                                     </p>
                                 </div>
                                 <p
                                     style={{
                                         color: "rgba(var(--secText))",
                                         fontSize: "1.2rem",
-                                        // marginRight: "2rem",
                                     }}
                                 >
                                     {T("historyCreated", [
