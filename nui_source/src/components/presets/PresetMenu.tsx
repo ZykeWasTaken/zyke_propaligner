@@ -19,7 +19,7 @@ const PresetMenu: React.FC<{
     loadPreset: (data: Preset) => void;
 }> = ({ getCurrentAlignmentData, loadPreset }) => {
     const T = useTranslation();
-    const { modalsOpen } = useModalContext();
+    const { openModal, modalsOpen } = useModalContext();
     const modalId = "presetMenu";
     const [loading, setLoading] = useState<boolean>(true);
     const [presets, setPresets] = useState<Array<Preset>>([]);
@@ -159,106 +159,115 @@ const PresetMenu: React.FC<{
     };
 
     return (
-        <Modal
-            id={modalId}
-            title={T("presetMenuTitle")}
-            icon={<ControlPointDuplicateIcon />}
-            closeButton
-            modalStyling={{
-                width: "50rem",
-            }}
-            loading={loading}
-        >
-            <LoadingOverlay
-                visible={
-                    pageLoading ||
-                    creationLoading ||
-                    deletionLoading ||
-                    importLoading
-                }
-            />
-
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "2fr 1fr",
-                    gap: "0.75rem",
-                    alignItems: "end",
-                }}
+        <>
+            <Button
+                wide
+                icon={<ControlPointDuplicateIcon />}
+                onClick={() => openModal("presetMenu")}
             >
-                <TextInput
-                    label={T("presetLabelTitle")}
-                    placeholder={T("presetLabelPlaceholder")}
-                    icon={<LabelIcon />}
-                    value={label}
-                    onChange={(e) => setLabel(e.target.value)}
-                    disabled={creationLoading}
-                />
-                <Button
-                    icon={<UploadFileIcon />}
-                    wide
-                    buttonStyling={{
-                        marginBottom: "0.25rem",
-                    }}
-                    color={"var(--blue2)"}
-                    onClick={() => createPreset()}
-                    loading={creationLoading}
-                    disabled={!isValidPresetLabel()}
-                >
-                    {T("save")}
-                </Button>
-            </div>
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "2fr 1fr",
-                    gap: "0.75rem",
-                    alignItems: "end",
+                {T("presetMenuTitle")}
+            </Button>
+            <Modal
+                id={modalId}
+                title={T("presetMenuTitle")}
+                icon={<ControlPointDuplicateIcon />}
+                closeButton
+                modalStyling={{
+                    width: "50rem",
                 }}
+                loading={loading}
             >
-                <TextInput
-                    label={T("importLabelTitle")}
-                    placeholder={T("importLabelPlaceholder")}
-                    icon={<DataObjectIcon />}
-                    value={importData}
-                    onChange={(e) => setImportData(e.target.value)}
-                    disabled={importLoading}
+                <LoadingOverlay
+                    visible={
+                        pageLoading ||
+                        creationLoading ||
+                        deletionLoading ||
+                        importLoading
+                    }
                 />
-                <Button
-                    icon={<DownloadIcon />}
-                    wide
-                    buttonStyling={{
-                        marginBottom: "0.25rem",
+
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "2fr 1fr",
+                        gap: "0.75rem",
+                        alignItems: "end",
                     }}
-                    color={"var(--blue2)"}
-                    onClick={async () => await importPreset(importData)}
-                    loading={importLoading}
-                    disabled={!isValidImportData()}
                 >
-                    {T("import")}
-                </Button>
-            </div>
+                    <TextInput
+                        label={T("presetLabelTitle")}
+                        placeholder={T("presetLabelPlaceholder")}
+                        icon={<LabelIcon />}
+                        value={label}
+                        onChange={(e) => setLabel(e.target.value)}
+                        disabled={creationLoading}
+                    />
+                    <Button
+                        icon={<UploadFileIcon />}
+                        wide
+                        buttonStyling={{
+                            marginBottom: "0.25rem",
+                        }}
+                        color={"var(--blue2)"}
+                        onClick={() => createPreset()}
+                        loading={creationLoading}
+                        disabled={!isValidPresetLabel()}
+                    >
+                        {T("save")}
+                    </Button>
+                </div>
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "2fr 1fr",
+                        gap: "0.75rem",
+                        alignItems: "end",
+                    }}
+                >
+                    <TextInput
+                        label={T("importLabelTitle")}
+                        placeholder={T("importLabelPlaceholder")}
+                        icon={<DataObjectIcon />}
+                        value={importData}
+                        onChange={(e) => setImportData(e.target.value)}
+                        disabled={importLoading}
+                    />
+                    <Button
+                        icon={<DownloadIcon />}
+                        wide
+                        buttonStyling={{
+                            marginBottom: "0.25rem",
+                        }}
+                        color={"var(--blue2)"}
+                        onClick={async () => await importPreset(importData)}
+                        loading={importLoading}
+                        disabled={!isValidImportData()}
+                    >
+                        {T("import")}
+                    </Button>
+                </div>
 
-            <div
-                style={{
-                    width: "40%",
-                    height: "1px",
-                    background: "rgba(var(--grey4))",
-                    margin: "1.75rem auto 1.75rem auto",
-                }}
-            />
+                <div
+                    style={{
+                        width: "40%",
+                        height: "1px",
+                        background: "rgba(var(--grey4))",
+                        margin: "1.75rem auto 1.75rem auto",
+                    }}
+                />
 
-            <AvailablePresets
-                presets={presets}
-                loadPreset={loadPreset}
-                overwritePreset={overwritePreset}
-                deletePreset={deletePreset}
-                totalPresets={totalPresets}
-                setPage={setPage}
-                page={page}
-                setPageLoading={setPageLoading}
-            />
-        </Modal>
+                <AvailablePresets
+                    presets={presets}
+                    loadPreset={loadPreset}
+                    overwritePreset={overwritePreset}
+                    deletePreset={deletePreset}
+                    totalPresets={totalPresets}
+                    setPage={setPage}
+                    page={page}
+                    setPageLoading={setPageLoading}
+                />
+            </Modal>
+        </>
     );
 };
 

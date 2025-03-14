@@ -14,7 +14,7 @@ const History = ({
 }) => {
     const T = useTranslation();
     const [history, setHistory] = useState<Array<HistoryData>>([]);
-    const { modalsOpen } = useModalContext();
+    const { openModal, modalsOpen } = useModalContext();
     const modalId = "loadHistory";
     const [loading, setLoading] = useState<boolean>(true);
 
@@ -30,72 +30,81 @@ const History = ({
     }, [modalsOpen[modalId]]);
 
     return (
-        <Modal
-            id={modalId}
-            title={T("loadHistoryTitle")}
-            icon={<HistoryIcon />}
-            closeButton
-            loading={loading}
-        >
-            <div
-                style={{
-                    display: "grid",
-                    gridTemplateColumns: "1fr",
-                    maxHeight: "40vh",
-                    overflowY: "scroll",
-                    minWidth: "45rem",
-                }}
+        <>
+            <Button
+                wide
+                icon={<HistoryIcon />}
+                onClick={() => openModal("loadHistory")}
             >
-                {history.map((data, idx) => (
-                    <Button
-                        key={"history-" + idx}
-                        onClick={() => loadHistory(data)}
-                        wide
-                        buttonStyling={{
-                            ...(idx === 0 && { margin: "0rem" }),
-                            height: "2.95rem",
-                        }}
-                        removeDefaultComponent
-                    >
-                        <div
-                            style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                width: "100%",
+                {T("loadHistoryTitle")}
+            </Button>
+            <Modal
+                id={modalId}
+                title={T("loadHistoryTitle")}
+                icon={<HistoryIcon />}
+                closeButton
+                loading={loading}
+            >
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr",
+                        maxHeight: "40vh",
+                        overflowY: "scroll",
+                        minWidth: "45rem",
+                    }}
+                >
+                    {history.map((data, idx) => (
+                        <Button
+                            key={"history-" + idx}
+                            onClick={() => loadHistory(data)}
+                            wide
+                            buttonStyling={{
+                                ...(idx === 0 && { margin: "0rem" }),
+                                height: "2.95rem",
                             }}
+                            removeDefaultComponent
                         >
                             <div
                                 style={{
                                     display: "flex",
-                                    alignItems: "center",
+                                    justifyContent: "space-between",
+                                    width: "100%",
                                 }}
                             >
-                                <p
+                                <div
                                     style={{
-                                        fontSize: "1.3rem",
+                                        display: "flex",
+                                        alignItems: "center",
                                     }}
                                 >
-                                    {T("historyModel", [data.prop])}
+                                    <p
+                                        style={{
+                                            fontSize: "1.3rem",
+                                        }}
+                                    >
+                                        {T("historyModel", [data.prop])}
+                                    </p>
+                                </div>
+                                <p
+                                    style={{
+                                        color: "rgba(var(--secText))",
+                                        fontSize: "1.2rem",
+                                        // marginRight: "2rem",
+                                    }}
+                                >
+                                    {T("historyCreated", [
+                                        new Date(
+                                            data.created * 1000
+                                        ).toLocaleString(),
+                                    ])}
                                 </p>
                             </div>
-                            <p
-                                style={{
-                                    color: "rgba(var(--secText))",
-                                    fontSize: "1.2rem",
-                                    // marginRight: "2rem",
-                                }}
-                            >
-                                {T("historyCreated", [
-                                    new Date(
-                                        data.created * 1000
-                                    ).toLocaleString(),
-                                ])}
-                            </p>
-                        </div>
-                    </Button>
-                ))}
-            </div>
-        </Modal>
+                        </Button>
+                    ))}
+                </div>
+            </Modal>
+        </>
     );
 };
 

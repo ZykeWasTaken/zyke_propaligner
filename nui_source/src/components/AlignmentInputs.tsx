@@ -124,20 +124,11 @@ const AlignmentInputs = () => {
                         marginBottom: "0.5rem",
                     }}
                 >
-                    <Button
-                        wide
-                        icon={<HistoryIcon />}
-                        onClick={() => openModal("loadHistory")}
-                    >
-                        {T("loadHistoryTitle")}
-                    </Button>
-                    <Button
-                        wide
-                        icon={<ControlPointDuplicateIcon />}
-                        onClick={() => openModal("presetMenu")}
-                    >
-                        {T("presetMenuTitle")}
-                    </Button>
+                    <History loadHistory={loadHistory} />
+                    <PresetMenu
+                        getCurrentAlignmentData={getCurrentAlignmentData}
+                        loadPreset={loadPreset}
+                    />
                 </div>
             </div>
             <form onSubmit={handleForm}>
@@ -224,12 +215,6 @@ const AlignmentInputs = () => {
                     {T("startEditing")}
                 </Button>
             </form>
-
-            <History loadHistory={loadHistory} />
-            <PresetMenu
-                getCurrentAlignmentData={getCurrentAlignmentData}
-                loadPreset={loadPreset}
-            />
         </>
     );
 };
