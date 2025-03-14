@@ -42,6 +42,7 @@ return {
     ["addFirstProp"] = "No Props? Add Some!",
     ["deleteProp"] = "Delete",
     ["makePrimary"] = "Make Primary",
+    ["invalid"] = "Invalid",
 
     -- Alignment Button Instructions
     ["instruct:save"] = "Save",

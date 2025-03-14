@@ -1,8 +1,15 @@
-import React from "react";
+import React, { useEffect, useRef, useState } from "react";
 import TextInput from "../utils/TextInput";
 import { MdAnimation } from "react-icons/md";
 import { AlignmentData } from "../../types";
 import { useTranslation } from "../../context/Translation";
+import { callback } from "../utils/nui-events";
+import { useDebouncedValue } from "@mantine/hooks";
+
+interface animValidation {
+    hasEdited: boolean;
+    valid: boolean;
+}
 
 const AnimationSection = ({
     editingData,
@@ -12,6 +19,59 @@ const AnimationSection = ({
     setEditingData: React.Dispatch<React.SetStateAction<AlignmentData>>;
 }) => {
     const T = useTranslation();
+    const [debouncedDict] = useDebouncedValue(editingData.dict, 500);
+    const firstDict = useRef(true);
+
+    const [debouncedClip] = useDebouncedValue(editingData.clip, 500);
+    const firstClip = useRef(true);
+
+    const [isAnimValid, setIsAnimValid] = useState<{
+        dict: animValidation;
+        clip: animValidation;
+    }>({
+        dict: {
+            hasEdited: false,
+            valid: true,
+        },
+        clip: {
+            hasEdited: false,
+            valid: true,
+        },
+    });
+
+    useEffect(() => {
+        if (firstDict.current) {
+            firstDict.current = false;
+            return;
+        }
+
+        callback("IsAnimValid", {
+            dict: editingData.dict,
+            clip: editingData.clip,
+        }).then((res: { dict: boolean; clip: boolean }) =>
+            setIsAnimValid((prev) => ({
+                ...prev,
+                dict: { hasEdited: true, valid: res.dict },
+            }))
+        );
+    }, [debouncedDict]);
+
+    useEffect(() => {
+        if (firstClip.current) {
+            firstClip.current = false;
+            return;
+        }
+
+        callback("IsAnimValid", {
+            dict: editingData.dict,
+            clip: editingData.clip,
+        }).then((res: { dict: boolean; clip: boolean }) =>
+            setIsAnimValid((prev) => ({
+                ...prev,
+                clip: { hasEdited: true, valid: res.clip },
+            }))
+        );
+    }, [debouncedClip]);
 
     return (
         <div
@@ -25,6 +85,11 @@ const AnimationSection = ({
                 icon={<MdAnimation />}
                 label={T("animationDict")}
                 value={editingData.dict}
+                error={
+                    isAnimValid.dict.hasEdited && !isAnimValid.dict.valid
+                        ? T("invalid")
+                        : undefined
+                }
                 onChange={(e) =>
                     setEditingData((prev) => ({
                         ...prev,
@@ -36,6 +101,11 @@ const AnimationSection = ({
                 icon={<MdAnimation />}
                 label={T("animationClip")}
                 value={editingData.clip}
+                error={
+                    isAnimValid.clip.hasEdited && !isAnimValid.clip.valid
+                        ? T("invalid")
+                        : undefined
+                }
                 onChange={(e) =>
                     setEditingData((prev) => ({
                         ...prev,

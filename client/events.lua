@@ -87,6 +87,8 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         TriggerServerEvent("zyke_propaligner:OnPresetLoad", data)
     elseif (event == "ValidatePropModel") then
         return cb(Z.loadModel(data, true, 1000))
+    elseif (event == "IsAnimValid") then
+        return cb(IsAnimValid(data.dict, data.clip))
     end
 
     cb("ok")
