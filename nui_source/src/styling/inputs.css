@@ -60,6 +60,7 @@
     font-family: var(--font);
     font-size: 1.05rem;
     font-weight: 500;
+    color: rgb(var(--red2));
 }
 
 .mantine-LoadingOverlay-root svg {
