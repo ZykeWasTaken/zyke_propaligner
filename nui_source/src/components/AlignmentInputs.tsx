@@ -2,7 +2,7 @@ import { useTranslation } from "../context/Translation";
 import Button from "./utils/Button";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import { useEffect, useRef, useState } from "react";
-import { callback, send } from "./utils/nui-events";
+import { callback, listen, send } from "./utils/nui-events";
 import PropAlignments from "./PropAlignments";
 import { useModalContext } from "../context/ModalContext";
 import History from "./History";
@@ -27,6 +27,7 @@ const AlignmentInputs = () => {
         clip: "",
         props: [],
     });
+    const editingDataRef = useRef(editingData);
 
     const [loading, setLoading] = useState<boolean>(false);
     const [currProp, setCurrProp] = useState<string | null>(null);
@@ -136,6 +137,33 @@ const AlignmentInputs = () => {
 
         validateAllProps().then((val) => setHasInvalidModels(!val));
     }, [debouncedPropEditing]);
+
+    listen("SetAlignmentData", (data) => {
+        for (const key in data) {
+            console.log(key);
+        }
+
+        setEditingData((prev) => ({
+            ...prev,
+            dict: data.dict,
+            clip: data.clip,
+            props: data.props,
+        }));
+    });
+
+    useEffect(() => {
+        editingDataRef.current = editingData;
+    }, [editingData]);
+
+    useEffect(() => {
+        return () => {
+            send("MenuUnmounted", {
+                dict: editingDataRef.current.dict,
+                clip: editingDataRef.current.clip,
+                props: editingDataRef.current.props,
+            });
+        };
+    }, []);
 
     return (
         <>

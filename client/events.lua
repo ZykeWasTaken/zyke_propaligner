@@ -6,6 +6,9 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         CloseMenu()
 
         cb("ok")
+    elseif (event == "MenuUnmounted") then
+        -- Same data as AlignmentData
+        TriggerEvent("zyke_propaligner:StoppedEditing", data)
     elseif (event == "GetConfig") then
         return cb({
             Settings = {

@@ -388,17 +388,16 @@ function StartEditing(data)
         Wait(0)
     end
 
-    AddToHistory({
-        dict = data.dict,
-        clip = data.clip,
-        props = props
-    })
-
-    return {
+    local retVal = {
         dict = data.dict,
         clip = data.clip,
         props = props
     }
+
+    AddToHistory(retVal)
+    TriggerEvent("zyke_propaligner:StoppedEditing", retVal)
+
+    return retVal
 end
 
 exports("StartEditing", StartEditing)
@@ -446,6 +445,41 @@ function OpenMenu()
     SetNuiFocus(true, true)
     SendNUIMessage({event = "SetOpen", data = true})
 end
+
+-- Used when the menu is open, insert alignment data, such as from our consumables/smoking script
+-- This is not used when loading history/preset within our resource
+---@param data AlignmentData
+function SetAlignmentData(data)
+    SendNUIMessage({
+        event = "SetAlignmentData",
+        data = data
+    })
+end
+
+exports("SetAlignmentData", SetAlignmentData)
+
+-- Opens the menu & inserts all alignments, will then return the results when menu is exited
+---@param data AlignmentData
+function ConfigureAlignments(data)
+    OpenMenu()
+    Wait(1)
+    SetAlignmentData(data)
+
+    local p = promise:new()
+
+    -- This event is also sent when the alignment menu is unmounted
+    -- So no need to do actual editing, you can just open the menu, change some value and close it and get the latest
+    local test = AddEventHandler("zyke_propaligner:StoppedEditing", function(editedData)
+        p:resolve(editedData)
+    end)
+
+    local val = Citizen.Await(p)
+    RemoveEventHandler(test)
+
+    return val
+end
+
+exports("ConfigureAlignments", ConfigureAlignments)
 
 -- RegisterCommand("test_export", function()
 --     ---@type AlignmentData
