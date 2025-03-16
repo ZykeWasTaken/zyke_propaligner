@@ -442,6 +442,11 @@ function GetHistory()
     return json.decode(GetResourceKvpString("zyke_propaligner:History") or "[]")
 end
 
+function OpenMenu()
+    SetNuiFocus(true, true)
+    SendNUIMessage({event = "SetOpen", data = true})
+end
+
 -- RegisterCommand("test_export", function()
 --     ---@type AlignmentData
 --     local data = {
