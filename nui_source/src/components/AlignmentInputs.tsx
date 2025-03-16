@@ -139,10 +139,6 @@ const AlignmentInputs = () => {
     }, [debouncedPropEditing]);
 
     listen("SetAlignmentData", (data) => {
-        for (const key in data) {
-            console.log(key);
-        }
-
         setEditingData((prev) => ({
             ...prev,
             dict: data.dict,
