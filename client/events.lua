@@ -35,7 +35,7 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
 
         -- Validate & load prop models
         for i = 1, #data.props do
-            if (not Z.loadModel(data.props[i].prop)) then
+            if (not Z.loadModel(data.props[i].prop, true)) then
                 Z.notify("invalidModel")
                 return cb("ok")
             end
