@@ -388,6 +388,20 @@ function StartEditing(data)
         Wait(0)
     end
 
+    -- Block the pause menu for a bit afterwards
+    -- Without a loop like this it doesn't block properly
+    CreateThread(function()
+        local started = GetGameTimer()
+
+        while (GetGameTimer() - started < 100) do
+            SetPauseMenuActive(false)
+            DisableControlAction(0, 199, true) -- P
+            DisableControlAction(0, 200, true) -- ESC
+
+            Wait(1)
+        end
+    end)
+
     local retVal = {
         dict = data.dict,
         clip = data.clip,
