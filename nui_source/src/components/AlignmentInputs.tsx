@@ -157,7 +157,7 @@ const AlignmentInputs = () => {
             ...prev,
             dict: data.dict,
             clip: data.clip,
-            props: data.props,
+            props: data.props.length > 0 ? data.props : prev.props,
         }));
     });
 
