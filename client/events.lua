@@ -9,10 +9,11 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
     elseif (event == "MenuUnmounted") then
         -- Runs when the menu is unmounted
         -- Filter when not truly "closed", to avoid accidental trigger when entering alignment mode
-        if (InAlignmentMode) then return end
+        if (InAlignmentMode) then return cb("ok") end
 
         -- Same data as AlignmentData
         TriggerEvent("zyke_propaligner:StoppedEditing", data)
+        return cb("ok")
     elseif (event == "GetConfig") then
         return cb({
             Settings = {
