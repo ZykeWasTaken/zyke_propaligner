@@ -469,12 +469,12 @@ function ConfigureAlignments(data)
 
     -- This event is also sent when the alignment menu is unmounted
     -- So no need to do actual editing, you can just open the menu, change some value and close it and get the latest
-    local test = AddEventHandler("zyke_propaligner:StoppedEditing", function(editedData)
+    local event = AddEventHandler("zyke_propaligner:StoppedEditing", function(editedData)
         p:resolve(editedData)
     end)
 
     local val = Citizen.Await(p)
-    RemoveEventHandler(test)
+    RemoveEventHandler(event)
 
     return val
 end
