@@ -5,7 +5,7 @@ local orgPos = nil
 local props = {}
 
 ---@type boolean
-local editing = false
+InAlignmentMode = false
 
 ---@type number
 local playerRaise, propRaise = 1000.0, 1002.0
@@ -20,7 +20,7 @@ local function reset()
         FreezeEntityPosition(PlayerPedId(), false)
     end
 
-    editing = false
+    InAlignmentMode = false
     orgPos = nil
 
     ClearPedTasks(PlayerPedId())
@@ -364,8 +364,8 @@ function StartEditing(data)
 
     local animDur = math.floor(GetAnimDuration(data.dict, data.clip) * 100) / 100
 
-    editing = true
-    while (editing) do
+    InAlignmentMode = true
+    while (InAlignmentMode) do
         local ply = PlayerPedId()
 
         scaleform:render()
