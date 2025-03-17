@@ -484,14 +484,18 @@ exports("ConfigureAlignments", ConfigureAlignments)
 -- RegisterCommand("test_export", function()
 --     ---@type AlignmentData
 --     local data = {
---         prop = "prop_beer_pissh",
---         offset = vector3(0.08123698830604, -0.20820142328739, 0.06948586553335),
---         rotation = vector3(-106.48714447021484, -73.45453643798828, 6.62326574325561),
 --         dict = "mp_player_intdrink",
 --         clip = "loop_bottle",
---         bone = 18905
+--         props = {
+--             {
+--                 prop = "prop_beer_pissh",
+--                 offset = {x = 0.08123698830604, y = -0.20820142328739, z = 0.06948586553335},
+--                 rotation = {x = -106.48714447021484, y = -73.45453643798828, z = 6.62326574325561},
+--                 bone = 18905
+--             }
+--         }
 --     }
 
---     local result = exports["zyke_propaligner"]:StartEditing(data)
---     print(json.encode(result))
+--     local result, failReason = exports["zyke_propaligner"]:StartEditing(data)
+--     print(json.encode(result), failReason)
 -- end, false)
