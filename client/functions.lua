@@ -463,10 +463,14 @@ end
 -- Used when the menu is open, insert alignment data, such as from our consumables/smoking script
 -- This is not used when loading history/preset within our resource
 ---@param data AlignmentData
-function SetAlignmentData(data)
+---@param backButton? boolean
+function SetAlignmentData(data, backButton)
     SendNUIMessage({
         event = "SetAlignmentData",
-        data = data
+        data = {
+            data = data,
+            backButton = backButton or false
+        }
     })
 end
 
@@ -474,10 +478,11 @@ exports("SetAlignmentData", SetAlignmentData)
 
 -- Opens the menu & inserts all alignments, will then return the results when menu is exited
 ---@param data AlignmentData
-function ConfigureAlignments(data)
+---@param backButton? boolean
+function ConfigureAlignments(data, backButton)
     OpenMenu()
     Wait(1)
-    SetAlignmentData(data)
+    SetAlignmentData(data, backButton)
 
     local p = promise:new()
 

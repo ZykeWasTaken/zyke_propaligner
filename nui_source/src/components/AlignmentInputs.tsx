@@ -18,6 +18,7 @@ import {
 } from "../types";
 import AnimationSection from "./inputs/AnimationSection";
 import AddIcon from "@mui/icons-material/Add";
+import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 
 const AlignmentInputs = () => {
     const T = useTranslation();
@@ -35,6 +36,7 @@ const AlignmentInputs = () => {
     const [debouncedPropEditing] = useDebouncedValue(editingData.props, 500);
     const [hasInvalidModels, setHasInvalidModels] = useState(true);
     const [bones, setBones] = useState<Bone[]>([]);
+    const [displayBackButton, setDisplayBackButton] = useState(false); // When using the script via another menu, to avoid confusion we display a new button to save & go back
     const isFirstRender = useRef(true);
 
     const handleForm = (e?: React.FormEvent<HTMLFormElement>): void => {
@@ -152,13 +154,17 @@ const AlignmentInputs = () => {
         validateAllProps().then((val) => setHasInvalidModels(!val));
     }, [debouncedPropEditing]);
 
-    listen("SetAlignmentData", (data) => {
+    listen("SetAlignmentData", ({ data, backButton }) => {
         setEditingData((prev) => ({
             ...prev,
             dict: data.dict,
             clip: data.clip,
             props: data.props.length > 0 ? data.props : prev.props,
         }));
+
+        if (backButton) {
+            setDisplayBackButton(true);
+        }
     });
 
     useEffect(() => {
@@ -251,24 +257,44 @@ const AlignmentInputs = () => {
                         width: "15rem",
                         height: "1px",
                         background: "rgba(var(--grey4))",
-                        margin: "1.25rem auto",
+                        margin: "1.25rem auto 0.75rem auto",
                     }}
                 />
 
-                <Button
-                    icon={<ControlCameraIcon />}
-                    color="var(--blue2)"
-                    buttonStyling={{
+                <div
+                    style={{
                         width: "100%",
-                    }}
-                    textContainerStyling={{
+                        display: "grid",
+                        alignItems: "center",
                         justifyContent: "center",
+                        gap: "1rem",
+                        gridTemplateColumns: displayBackButton
+                            ? "1fr 2fr"
+                            : "1fr",
                     }}
-                    onClick={() => handleForm()}
-                    loading={submitting}
                 >
-                    {T("startEditing")}
-                </Button>
+                    {displayBackButton && (
+                        <Button
+                            wide
+                            icon={<KeyboardReturnIcon />}
+                            color="var(--grey4)"
+                            onClick={() =>
+                                send("CloseMenu", undefined, undefined)
+                            }
+                        >
+                            {T("backButton")}
+                        </Button>
+                    )}
+                    <Button
+                        wide
+                        icon={<ControlCameraIcon />}
+                        color="var(--blue2)"
+                        onClick={() => handleForm()}
+                        loading={submitting}
+                    >
+                        {T("startEditing")}
+                    </Button>
+                </div>
             </form>
         </>
     );

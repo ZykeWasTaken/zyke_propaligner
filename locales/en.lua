@@ -43,6 +43,7 @@ return {
     ["deleteProp"] = "Delete",
     ["makePrimary"] = "Make Primary",
     ["invalid"] = "Invalid",
+    ["backButton"] = "Save & Exit",
 
     -- Alignment Button Instructions
     ["instruct:save"] = "Save",
