@@ -11,6 +11,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import PresetMenu from "./presets/PresetMenu";
 import {
     AlignmentData,
+    Bone,
     HistoryData,
     Preset,
     PropAlignmentData,
@@ -33,6 +34,7 @@ const AlignmentInputs = () => {
     const [currProp, setCurrProp] = useState<string | null>(null);
     const [debouncedPropEditing] = useDebouncedValue(editingData.props, 500);
     const [hasInvalidModels, setHasInvalidModels] = useState(true);
+    const [bones, setBones] = useState<Bone[]>([]);
     const isFirstRender = useRef(true);
 
     const handleForm = (e?: React.FormEvent<HTMLFormElement>): void => {
@@ -120,13 +122,25 @@ const AlignmentInputs = () => {
         }, 1);
     };
 
-    // On load, create a base prop & open it
-    useEffect(() => {
-        if (editingData.props.length !== 0) return;
+    // On component mount, fetch stuff we need & do inits
+    const setup = async () => {
+        // Create a base prop & open it
+        if (editingData.props.length === 0) {
+            addbaseProp();
+            setCurrProp("prop-" + editingData.props.length);
+        }
 
-        addbaseProp();
-        setCurrProp("prop-" + editingData.props.length);
-    }, []);
+        // Fetch bone list & format it for the select component
+        setBones(
+            await callback("GetBones").then((res) =>
+                res.map((item: { name: string; id: number; idx: number }) => ({
+                    ...item,
+                    label: item.name + ` (${item.id})`,
+                    value: item.id.toString(),
+                }))
+            )
+        );
+    };
 
     // Validate all prop models if nothing has been changed in a while
     useEffect(() => {
@@ -152,6 +166,8 @@ const AlignmentInputs = () => {
     }, [editingData]);
 
     useEffect(() => {
+        setup();
+
         return () => {
             send("MenuUnmounted", {
                 dict: editingDataRef.current.dict,
@@ -204,6 +220,7 @@ const AlignmentInputs = () => {
                             setEditingData={setEditingData}
                             totalProps={editingData.props.length}
                             setCurrProp={setCurrProp}
+                            bones={bones}
                         />
                     ))}
                 </Accordion>

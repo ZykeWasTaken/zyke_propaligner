@@ -9,6 +9,7 @@ ui_page "nui/index.html"
 shared_scripts {
     "@zyke_lib/imports.lua",
     "shared/config.lua",
+    "shared/bones.lua",
 }
 
 server_scripts {

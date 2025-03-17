@@ -32,3 +32,11 @@ export interface NewPresetData {
     label: string;
     data: AlignmentData;
 }
+
+export interface Bone {
+    label: string;
+    name: string;
+    value: string;
+    id: number;
+    idx: number;
+}

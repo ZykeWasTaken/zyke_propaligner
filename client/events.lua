@@ -97,6 +97,8 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         return cb(Z.loadModel(data, true, 1000))
     elseif (event == "IsAnimValid") then
         return cb(IsAnimValid(data.dict, data.clip))
+    elseif (event == "GetBones") then
+        return cb(Config.Bones)
     end
 
     cb("ok")
