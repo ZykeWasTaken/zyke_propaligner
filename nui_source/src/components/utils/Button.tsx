@@ -231,7 +231,7 @@ const Button: React.FC<Buttonprops> = ({
                     "& p": {
                         color: `${textHex}`,
                         fontSize: "1.4rem",
-                        margin: "0.15rem 0.2rem 0 0",
+                        margin: "0rem 0.2rem 0 0",
                         fontWeight: hollow ? "400" : "400",
                         transition: "all 0.2s ease-in-out",
                         ...textStyling,
