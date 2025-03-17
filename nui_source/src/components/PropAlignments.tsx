@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import CropRotateIcon from "@mui/icons-material/CropRotate";
 import { useTranslation } from "../context/Translation";
@@ -38,6 +38,7 @@ const PropAlignments = ({
     const T = useTranslation();
     const [propModelChange] = useDebouncedValue(prop, 500);
     const [modelValid, setModelValid] = useState<boolean>(true);
+    const firstRender = useRef(true);
 
     const setValue = (
         path: "rotation" | "offset",
@@ -61,6 +62,12 @@ const PropAlignments = ({
     };
 
     useEffect(() => {
+        // Avoid instant error, allow modifying first
+        if (firstRender.current === true) {
+            firstRender.current = false;
+            return;
+        }
+
         if (!propModelChange) return setModelValid(false);
         if (propModelChange.length === 0) return setModelValid(false);
 
