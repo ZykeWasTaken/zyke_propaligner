@@ -99,6 +99,39 @@ function IsAnimValid(dict, clip)
     }
 end
 
+---@param propList PropAlignmentData[]
+local function ensureProps(propList)
+    local ply = PlayerPedId()
+    local plyPos = GetEntityCoords(ply)
+
+    for i = 1, #propList do
+        if (not props[i]?.entity or not DoesEntityExist(props[i].entity)) then
+            props[i].entity = CreateObject(props[i].prop, plyPos.x, plyPos.y, plyPos.z, false, false, false)
+        end
+
+        local boneIdx = GetPedBoneIndex(PlayerPedId(), propList[i].bone)
+
+        AttachEntityToEntity(props[i].entity, ply, boneIdx, props[i].offset.x, props[i].offset.y, props[i].offset.z, props[i].rotation.x, props[i].rotation.y, props[i].rotation.z, true, true, false, true, 1, true)
+    end
+end
+
+---@type integer
+local currPropIdx = 1
+
+RegisterNUICallback("Eventhandler:moveEntity", function(data, cb)
+    data = data.data
+    if (not props[currPropIdx]?.entity or not DoesEntityExist(props[currPropIdx].entity)) then return end
+
+    -- Some conversions to get the correct values
+    props[currPropIdx].offset = vector3(propRaise - data.position.z, data.position.y, data.position.x)
+    props[currPropIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
+
+    local boneIdx = GetPedBoneIndex(PlayerPedId(), props[currPropIdx].bone)
+
+    AttachEntityToEntity(props[currPropIdx].entity, PlayerPedId(), boneIdx, props[currPropIdx].offset.x, props[currPropIdx].offset.y, props[currPropIdx].offset.z, props[currPropIdx].rotation.x, props[currPropIdx].rotation.y, props[currPropIdx].rotation.z, true, true, false, true, 1, true)
+    cb("ok")
+end)
+
 ---@class ButtonProps
 ---@field label string
 ---@field getLabel? fun(): string
@@ -124,9 +157,7 @@ function StartEditing(data)
     if (not validAnims.clip) then return nil, "invalidClip" end
 
     orgPos = GetEntityCoords(PlayerPedId())
-
-    ---@type integer
-    local currPropIdx = 1
+    currPropIdx = 1
 
     -- Add all of the props & make sure offsetsa & rotations are numbers
     for i = 1, #data.props do
@@ -178,21 +209,6 @@ function StartEditing(data)
             while (not isPlayingAnim(data.dict, data.clip)) do Wait(1) end
 
             SetEntityAnimSpeed(ply, data.dict, data.clip, animSpeedIdx * speedMultiplier)
-        end
-    end
-
-    local function ensureProps()
-        local ply = PlayerPedId()
-        local plyPos = GetEntityCoords(ply)
-
-        for i = 1, #data.props do
-            if (not props[i]?.entity or not DoesEntityExist(props[i].entity)) then
-                props[i].entity = CreateObject(props[i].prop, plyPos.x, plyPos.y, plyPos.z, false, false, false)
-            end
-
-            local boneIdx = GetPedBoneIndex(PlayerPedId(), data.props[i].bone)
-
-            AttachEntityToEntity(props[i].entity, ply, boneIdx, props[i].offset.x, props[i].offset.y, props[i].offset.z, props[i].rotation.x, props[i].rotation.y, props[i].rotation.z, true, true, false, true, 1, true)
         end
     end
 
@@ -341,26 +357,9 @@ function StartEditing(data)
         end}
     }
 
-    ensureProps()
+    ensureProps(data.props)
     getLabels()
     setGizmoEntity()
-
-    RegisterNUICallback("Eventhandler:moveEntity", function(data, cb)
-        data = data.data
-        if (not props[currPropIdx]?.entity or not DoesEntityExist(props[currPropIdx].entity)) then
-            ensureProps()
-            return
-        end
-
-        -- Some conversions to get the correct values
-        props[currPropIdx].offset = vector3(propRaise - data.position.z, data.position.y, data.position.x)
-        props[currPropIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
-
-        local boneIdx = GetPedBoneIndex(PlayerPedId(), props[currPropIdx].bone)
-
-        AttachEntityToEntity(props[currPropIdx].entity, PlayerPedId(), boneIdx, props[currPropIdx].offset.x, props[currPropIdx].offset.y, props[currPropIdx].offset.z, props[currPropIdx].rotation.x, props[currPropIdx].rotation.y, props[currPropIdx].rotation.z, true, true, false, true, 1, true)
-        cb("ok")
-    end)
 
     local animDur = math.floor(GetAnimDuration(data.dict, data.clip) * 100) / 100
 
