@@ -154,18 +154,27 @@ const AlignmentInputs = () => {
         validateAllProps().then((val) => setHasInvalidModels(!val));
     }, [debouncedPropEditing]);
 
-    listen("SetAlignmentData", ({ data, backButton }) => {
-        setEditingData((prev) => ({
-            ...prev,
-            dict: data.dict,
-            clip: data.clip,
-            props: data.props.length > 0 ? data.props : prev.props,
-        }));
+    listen(
+        "SetAlignmentData",
+        ({
+            data,
+            backButton,
+        }: {
+            data: AlignmentData;
+            backButton: boolean | "prev";
+        }) => {
+            setEditingData((prev) => ({
+                ...prev,
+                dict: data.dict,
+                clip: data.clip,
+                props: data.props.length > 0 ? data.props : prev.props,
+            }));
 
-        if (backButton) {
-            setDisplayBackButton(true);
+            if (backButton !== "prev") {
+                setDisplayBackButton(backButton);
+            }
         }
-    });
+    );
 
     useEffect(() => {
         editingDataRef.current = editingData;

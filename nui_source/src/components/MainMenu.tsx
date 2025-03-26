@@ -7,13 +7,22 @@ import { useModalContext } from "../context/ModalContext";
 
 const MainMenu = () => {
     const T = useTranslation();
-    const { openModal, closeModal } = useModalContext();
+    const { openModal, closeModal, suspendModals, unsuspendModals } =
+        useModalContext();
 
     listen("SetOpen", (val: boolean) => {
         if (val) {
             openModal("mainMenu");
         } else {
             closeModal("mainMenu");
+        }
+    });
+
+    listen("SetSuspension", (val: boolean) => {
+        if (val) {
+            suspendModals();
+        } else {
+            unsuspendModals();
         }
     });
 

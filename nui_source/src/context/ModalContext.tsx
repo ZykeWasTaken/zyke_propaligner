@@ -3,6 +3,7 @@ import React, {
     ReactNode,
     useContext,
     useEffect,
+    useRef,
     useState,
 } from "react";
 import { OpenedModal } from "../types";
@@ -15,6 +16,8 @@ interface ModalContextType {
     closeModal: (name?: string) => void;
     hasModalsOpen: () => boolean;
     setModalData: (name: string, data: { [key: string]: any }) => void;
+    suspendModals: () => void;
+    unsuspendModals: () => void;
 }
 
 const ModalContext = createContext<ModalContextType | undefined>(undefined);
@@ -31,6 +34,8 @@ export const useModalContext = (): ModalContextType => {
 export const ModalProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
+    const modalIdx = useRef(0);
+
     const [modalsOpen, setModalsOpen] = useState<{
         [key: string]: OpenedModal;
     }>({});
@@ -45,11 +50,14 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({
         canClose?: boolean,
         onClose?: () => void
     ) => {
+        modalIdx.current = modalIdx.current + 1;
         setModalsOpen((prev) => ({
             ...prev,
             [name]: {
                 canClose: canClose || true,
                 onClose: onClose !== undefined ? onClose : null,
+                suspended: false,
+                idx: modalIdx.current,
             },
         }));
         setModalQueue((prev) => [...prev, name]);
@@ -96,6 +104,32 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({
         return modalQueue.length > 0;
     };
 
+    const suspendModals = () => {
+        const newModals: { [key: string]: OpenedModal } = {};
+
+        for (const modalId in modalsOpen) {
+            newModals[modalId] = {
+                ...modalsOpen[modalId],
+                suspended: true,
+            };
+        }
+
+        setModalsOpen(newModals);
+    };
+
+    const unsuspendModals = () => {
+        const newModals: { [key: string]: OpenedModal } = {};
+
+        for (const modalId in modalsOpen) {
+            newModals[modalId] = {
+                ...modalsOpen[modalId],
+                suspended: false,
+            };
+        }
+
+        setModalsOpen(newModals);
+    };
+
     useEffect(() => {
         const onKeyDown = (e: KeyboardEvent) => {
             if (e.key === "Escape") {
@@ -120,6 +154,8 @@ export const ModalProvider: React.FC<{ children: ReactNode }> = ({
                 closeModal,
                 hasModalsOpen,
                 setModalData,
+                suspendModals,
+                unsuspendModals,
             }}
         >
             {children}

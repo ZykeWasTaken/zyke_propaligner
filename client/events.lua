@@ -46,7 +46,8 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         if (not validAnims.dict) then Z.notify("invalidDict") return cb("ok") end
         if (not validAnims.clip) then Z.notify("invalidClip") return cb("ok") end
 
-        CloseMenu()
+        SetNuiFocus(false, false)
+        SendNUIMessage({event = "SetSuspension", data = true})
 
         CreateThread(function()
             StartEditing(data)

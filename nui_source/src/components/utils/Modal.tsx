@@ -7,8 +7,8 @@ import {
     TargetAndTransition,
     VariantLabels,
 } from "framer-motion";
-import { ReactNode, useEffect, useState } from "react";
-import { ButtonBase, CircularProgress, LinearProgress } from "@mui/material";
+import { ReactNode, useEffect, useRef, useState } from "react";
+import { ButtonBase, CircularProgress } from "@mui/material";
 import { useModalContext } from "../../context/ModalContext";
 
 interface ModalProps {
@@ -71,14 +71,26 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     const { modalsOpen } = useModalContext();
     const [open, setOpen] = useState(false);
+    const [suspended, setSuspended] = useState<boolean>(false);
+    const idx = useRef(0);
+    const wasSuspended = useRef(false);
 
     useEffect(() => {
-        if (modalsOpen[id]) {
+        if (modalsOpen[id] && !open) {
             setOpen(true);
-        } else {
+            idx.current = modalsOpen[id].idx + 1000;
+        } else if (!modalsOpen[id] && open) {
             setOpen(false);
-
             if (onClose) onClose();
+        }
+
+        if (modalsOpen[id]) {
+            if (modalsOpen[id].suspended && !suspended) {
+                setSuspended(true);
+                wasSuspended.current = true;
+            } else if (!modalsOpen[id].suspended && suspended) {
+                setSuspended(false);
+            }
         }
     }, [modalsOpen[id]]);
 
@@ -86,6 +98,24 @@ const Modal: React.FC<ModalProps> = ({
         disableHeader = true;
         closeButton = false;
     }
+
+    const animDelay =
+        wasSuspended.current === true
+            ? 0.0
+            : loading !== undefined && modalsOpen[id] !== undefined
+            ? 0.2
+            : 0;
+
+    // Previous used before suspended
+    // const animDelay =
+    //     loading !== undefined && modalsOpen[id] !== undefined ? 0.2 : 0;
+
+    // In order to properly act on the value, we change it here
+    // We do set it to true instantly when we set the suspended useEffect to keep it accurate
+    // Naming might be a little weird, but works for what it is meant to do
+    useEffect(() => {
+        wasSuspended.current = suspended;
+    }, [suspended]);
 
     return (
         <OptionalPortal
@@ -99,12 +129,13 @@ const Modal: React.FC<ModalProps> = ({
         >
             <BackDrop
                 id={id}
-                open={open}
+                open={open && !suspended}
                 disableBackdrop={disableBackdrop}
                 disableClickOutside={disableClickOutside}
                 disableClosing={disableClosing}
                 onClose={onClose}
                 onClickOutside={onClickOutside}
+                idx={idx.current - 1}
             />
             <Loading open={open} loading={loading ? true : false} />
             <AnimatePresence>
@@ -118,19 +149,20 @@ const Modal: React.FC<ModalProps> = ({
                             }
                         }
                         animate={
-                            modalAnimation?.animate || { opacity: 1, scale: 1 }
+                            modalAnimation?.animate || {
+                                opacity: suspended ? 0.0 : 1.0,
+                                scale: 1.0,
+                            }
                         }
                         exit={
-                            modalAnimation?.exit || { opacity: 0, scale: 0.98 }
+                            modalAnimation?.exit || {
+                                opacity: 0,
+                                scale: 0.98,
+                            }
                         }
                         transition={{
                             duration: 0.2,
-
-                            delay:
-                                loading !== undefined &&
-                                modalsOpen[id] !== undefined
-                                    ? 0.2
-                                    : 0,
+                            delay: animDelay,
                         }}
                         style={{
                             position: "absolute",
@@ -142,7 +174,8 @@ const Modal: React.FC<ModalProps> = ({
                             minWidth: !disablePortal ? "40rem" : undefined,
                             maxWidth: !disablePortal ? "80%" : undefined,
                             width: width,
-                            zIndex: 1000,
+                            zIndex: idx.current,
+                            pointerEvents: suspended ? "none" : "auto",
 
                             borderRadius: !disableStyling
                                 ? "var(--lborderRadius)"
@@ -165,8 +198,6 @@ const Modal: React.FC<ModalProps> = ({
                                 width: "100%",
                                 height: "100%",
                                 position: "relative",
-                                // borderRadius: "inherit",
-                                // overflow: "hidden",
                             }}
                         >
                             <Header
@@ -379,6 +410,7 @@ interface BackDropProps {
     onClose?: () => void;
     onClickOutside?: () => void;
     id?: string;
+    idx: number;
 }
 
 const BackDrop: React.FC<BackDropProps> = ({
@@ -389,6 +421,7 @@ const BackDrop: React.FC<BackDropProps> = ({
     onClose,
     onClickOutside,
     id,
+    idx,
 }) => {
     const { closeModal } = useModalContext();
 
@@ -405,7 +438,7 @@ const BackDrop: React.FC<BackDropProps> = ({
                         })`,
                         top: 0,
                         left: 0,
-                        zIndex: 1000,
+                        zIndex: idx,
                     }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

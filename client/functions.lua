@@ -408,7 +408,10 @@ function StartEditing(data)
     }
 
     AddToHistory(retVal)
-    TriggerEvent("zyke_propaligner:StoppedEditing", retVal)
+
+    SetAlignmentData(retVal, "prev")
+    SendNUIMessage({event = "SetSuspension", data = false})
+    SetNuiFocus(true, true)
 
     return retVal
 end
@@ -460,9 +463,9 @@ function OpenMenu()
 end
 
 -- Used when the menu is open, insert alignment data, such as from our consumables/smoking script
--- This is not used when loading history/preset within our resource
+-- This is not used when loading history/preset within our resource, only when inserting after finished editing
 ---@param data AlignmentData
----@param backButton? boolean
+---@param backButton? boolean | "prev" @If "prev", use the previous setting
 function SetAlignmentData(data, backButton)
     SendNUIMessage({
         event = "SetAlignmentData",
