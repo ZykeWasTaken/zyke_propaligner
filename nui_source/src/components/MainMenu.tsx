@@ -38,6 +38,8 @@ const MainMenu = () => {
         }));
     };
 
+    listen("SetBones", (bones: Bone[]) => setBones(formatBones(bones)));
+
     useEffect(() => {
         callback("GetBones").then((bones: Bone[]) =>
             setBones(formatBones(bones))

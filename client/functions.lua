@@ -462,6 +462,28 @@ function OpenMenu()
     SendNUIMessage({event = "SetOpen", data = true})
 end
 
+---@param bones {name: string, id: integer, idx: integer, [string]: any}[] | "default" -- @default will use the default bones from shared/bones.lua
+function SetBones(bones)
+    if (bones == "default") then bones = Config.Bones end
+
+    local boneList = {}
+
+    for i = 1, #bones do
+        boneList[i] = {
+            name = bones[i].name,
+            id = bones[i].id,
+            idx = bones[i].idx
+        }
+    end
+
+    SendNUIMessage({
+        event = "SetBones",
+        data = boneList
+    })
+end
+
+exports("SetBones", SetBones)
+
 -- Used when the menu is open, insert alignment data, such as from our consumables/smoking script
 -- This is not used when loading history/preset within our resource, only when inserting after finished editing
 ---@param data AlignmentData
