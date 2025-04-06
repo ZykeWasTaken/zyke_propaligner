@@ -1,7 +1,7 @@
 import { useTranslation } from "../context/Translation";
 import Button from "./utils/Button";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { callback, listen, send } from "./utils/nui-events";
 import PropAlignments from "./PropAlignments";
 import { useModalContext } from "../context/ModalContext";
@@ -20,7 +20,11 @@ import AnimationSection from "./inputs/AnimationSection";
 import AddIcon from "@mui/icons-material/Add";
 import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 
-const AlignmentInputs = () => {
+interface LocalProps {
+    bones: Bone[];
+}
+
+const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
     const T = useTranslation();
     const { openModal, closeModal } = useModalContext();
     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -35,7 +39,6 @@ const AlignmentInputs = () => {
     const [currProp, setCurrProp] = useState<string | null>(null);
     const [debouncedPropEditing] = useDebouncedValue(editingData.props, 500);
     const [hasInvalidModels, setHasInvalidModels] = useState(true);
-    const [bones, setBones] = useState<Bone[]>([]);
     const [displayBackButton, setDisplayBackButton] = useState(false); // When using the script via another menu, to avoid confusion we display a new button to save & go back
     const isFirstRender = useRef(true);
 
@@ -131,17 +134,6 @@ const AlignmentInputs = () => {
             addbaseProp();
             setCurrProp("prop-" + editingData.props.length);
         }
-
-        // Fetch bone list & format it for the select component
-        setBones(
-            await callback("GetBones").then((res) =>
-                res.map((item: { name: string; id: number; idx: number }) => ({
-                    ...item,
-                    label: item.name + ` (${item.id})`,
-                    value: item.id.toString(),
-                }))
-            )
-        );
     };
 
     // Validate all prop models if nothing has been changed in a while

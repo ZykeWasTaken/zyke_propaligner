@@ -1,14 +1,18 @@
-import { listen, send } from "./utils/nui-events";
+import { callback, listen, send } from "./utils/nui-events";
 import AlignmentInputs from "./AlignmentInputs";
 import { useTranslation } from "../context/Translation";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import Modal from "./utils/Modal";
 import { useModalContext } from "../context/ModalContext";
+import { Bone } from "../types";
+import { useEffect, useState } from "react";
 
 const MainMenu = () => {
     const T = useTranslation();
     const { openModal, closeModal, suspendModals, unsuspendModals } =
         useModalContext();
+
+    const [bones, setBones] = useState<Bone[]>([]);
 
     listen("SetOpen", (val: boolean) => {
         if (val) {
@@ -26,6 +30,20 @@ const MainMenu = () => {
         }
     });
 
+    const formatBones = (bones: Bone[]) => {
+        return bones.map((item) => ({
+            ...item,
+            label: item.name + ` (${item.id})`,
+            value: item.id.toString(),
+        }));
+    };
+
+    useEffect(() => {
+        callback("GetBones").then((bones: Bone[]) =>
+            setBones(formatBones(bones))
+        );
+    }, []);
+
     return (
         <>
             <Modal
@@ -38,7 +56,7 @@ const MainMenu = () => {
                     width: "60rem",
                 }}
             >
-                <AlignmentInputs />
+                <AlignmentInputs bones={bones} />
             </Modal>
         </>
     );
