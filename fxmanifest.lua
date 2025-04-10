@@ -22,6 +22,7 @@ client_scripts {
 	"client/functions.lua",
 	"client/commands.lua",
 	"client/events.lua",
+	"client/alignment.lua",
 }
 
 files {

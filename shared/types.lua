@@ -8,6 +8,7 @@
 ---@field bone integer
 ---@field offset Vector3Table
 ---@field rotation Vector3Table
+---@field entity? Prop
 
 ---@class EditingPropData : PropAlignmentData
 ---@field entity? integer
@@ -37,3 +38,4 @@
 ---@alias Success boolean
 ---@alias FailReason string
 ---@alias JSON string
+---@alias Prop integer
