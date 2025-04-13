@@ -60,9 +60,14 @@ function GetHistory()
     return json.decode(GetResourceKvpString("zyke_propaligner:History") or "[]")
 end
 
+AlignmentMenuMounted = false
 function OpenMenu()
     SetNuiFocus(true, true)
     SendNUIMessage({event = "SetOpen", data = true})
+
+    -- Wait to ensure menu has been mounted before supplying data, otherwise our request may not be received
+    while (not AlignmentMenuMounted) do Wait(5) end
+    AlignmentMenuMounted = false
 end
 
 ---@param bones {name: string, id: integer, idx: integer, [string]: any}[] | "default" -- @default will use the default bones from shared/bones.lua
@@ -108,7 +113,6 @@ exports("SetAlignmentData", SetAlignmentData)
 ---@param backButton? boolean
 function ConfigureAlignments(data, backButton)
     OpenMenu()
-    Wait(1)
     SetAlignmentData(data, backButton)
 
     local p = promise:new()

@@ -101,6 +101,9 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         return cb(IsAnimValid(data.dict, data.clip))
     elseif (event == "GetBones") then
         return cb(Config.Bones)
+    elseif (event == "AlignmentMenuMounted") then
+        AlignmentMenuMounted = true
+        return cb("ok")
     end
 
     cb("ok")

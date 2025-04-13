@@ -173,6 +173,7 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
     }, [editingData]);
 
     useEffect(() => {
+        send("AlignmentMenuMounted");
         setup();
 
         return () => {
