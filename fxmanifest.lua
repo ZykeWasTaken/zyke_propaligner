@@ -1,7 +1,7 @@
 fx_version "cerulean"
 game "gta5"
 lua54 "yes"
-version "1.2.1"
+version "1.2.2"
 
 ui_page "nui/index.html"
 -- ui_page "nui_source/hot_reload.html"
