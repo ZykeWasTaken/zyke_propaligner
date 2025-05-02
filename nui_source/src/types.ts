@@ -15,6 +15,7 @@ export interface PropAlignmentData {
     bone: number;
     offset: { x: number; y: number; z: number };
     rotation: { x: number; y: number; z: number };
+    tempId: number;
 }
 
 export interface HistoryData extends AlignmentData {

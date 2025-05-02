@@ -3,7 +3,7 @@ import Button from "./utils/Button";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import React, { useEffect, useRef, useState } from "react";
 import { callback, listen, send } from "./utils/nui-events";
-import PropAlignments from "./PropAlignments";
+import PropAlignments from "./props/PropAlignments";
 import { useModalContext } from "../context/ModalContext";
 import History from "./history/History";
 import { Accordion, LoadingOverlay } from "@mantine/core";
@@ -17,8 +17,8 @@ import {
     PropAlignmentData,
 } from "../types";
 import AnimationSection from "./inputs/AnimationSection";
-import AddIcon from "@mui/icons-material/Add";
 import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
+import PropList from "./props/PropList";
 
 interface LocalProps {
     bones: Bone[];
@@ -36,7 +36,6 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
     const editingDataRef = useRef(editingData);
 
     const [loading, setLoading] = useState<boolean>(false);
-    const [currProp, setCurrProp] = useState<string | null>(null);
     const [debouncedPropEditing] = useDebouncedValue(editingData.props, 500);
     const [hasInvalidModels, setHasInvalidModels] = useState(true);
     const [displayBackButton, setDisplayBackButton] = useState(false); // When using the script via another menu, to avoid confusion we display a new button to save & go back
@@ -59,7 +58,13 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
 
         setTimeout(() => {
             setLoading(false);
-            setEditingData(data);
+            setEditingData({
+                ...data,
+                props: data.props.map((item) => ({
+                    ...item,
+                    tempId: Math.floor(Math.random() * 1000000),
+                })),
+            });
         }, 100);
     };
 
@@ -74,7 +79,13 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
             setEditingData({
                 dict: data.data.dict,
                 clip: data.data.clip,
-                props: data.data.props,
+                props: data.data.props.map((item) =>
+                    // item.tempId ? { ...item, tempId: Math.random() } : item
+                    ({
+                        ...item,
+                        tempId: Math.floor(Math.random() * 1000000),
+                    })
+                ),
             });
         }, 100);
     };
@@ -113,6 +124,7 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
             bone: 0,
             offset: { x: 0.0, y: 0.0, z: 0.0 },
             rotation: { x: 0.0, y: 0.0, z: 0.0 },
+            tempId: Math.floor(Math.random() * 1000000),
         };
 
         setEditingData((prev) => ({
@@ -121,10 +133,6 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
         }));
 
         setHasInvalidModels(true);
-
-        setTimeout(() => {
-            setCurrProp("prop-" + editingData.props.length);
-        }, 1);
     };
 
     // On component mount, fetch stuff we need & do inits
@@ -132,7 +140,6 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
         // Create a base prop & open it
         if (editingData.props.length === 0) {
             addbaseProp();
-            setCurrProp("prop-" + editingData.props.length);
         }
     };
 
@@ -159,7 +166,12 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                 ...prev,
                 dict: data.dict,
                 clip: data.clip,
-                props: data.props.length > 0 ? data.props : prev.props,
+                props: (data.props.length > 0 ? data.props : prev.props).map(
+                    (item) => ({
+                        ...item,
+                        tempId: Math.floor(Math.random() * 1000000),
+                    })
+                ),
             }));
 
             if (backButton !== "prev") {
@@ -211,48 +223,13 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                     setEditingData={setEditingData}
                 />
 
-                <Accordion
-                    value={currProp}
-                    onChange={(id) => {
-                        if (editingData.props.length === 0) return;
-                        if (id === null) return;
-
-                        setCurrProp(id);
-                    }}
-                >
-                    {editingData.props.map((prop, idx) => (
-                        <PropAlignments
-                            key={"prop-" + idx}
-                            idx={idx}
-                            {...prop}
-                            setEditingData={setEditingData}
-                            totalProps={editingData.props.length}
-                            setCurrProp={setCurrProp}
-                            bones={bones}
-                        />
-                    ))}
-                </Accordion>
-
-                <div
-                    style={{
-                        display: "flex",
-                        alignItems: "center",
-                        justifyContent: "end",
-                    }}
-                >
-                    <Button
-                        color="rgba(var(--blue2))"
-                        icon={<AddIcon />}
-                        onClick={async () => await addbaseProp()}
-                        disabled={hasInvalidModels}
-                    >
-                        {T(
-                            editingData.props.length > 0
-                                ? "addMoreProps"
-                                : "addFirstProp"
-                        )}
-                    </Button>
-                </div>
+                <PropList
+                    editingData={editingData}
+                    setEditingData={setEditingData}
+                    bones={bones}
+                    addbaseProp={addbaseProp}
+                    hasInvalidModels={hasInvalidModels}
+                />
 
                 <div
                     style={{

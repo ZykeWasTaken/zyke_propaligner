@@ -13,6 +13,7 @@ return {
     ["animationDict"] = "Animation Dictionary",
     ["animationClip"] = "Animation Clip",
     ["startEditing"] = "Start Editing",
+    ["propList"] = "Props",
     ["propOffsetTitle"] = "Prop Offset",
     ["propOffsetX"] = "Offset X",
     ["propOffsetY"] = "Offset Y",
