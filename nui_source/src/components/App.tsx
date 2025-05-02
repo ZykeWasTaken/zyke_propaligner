@@ -1,4 +1,4 @@
-import { ThreeComponent } from "./ThreeComponent";
+import { ThreeComponent } from "./alignment_controls/ThreeComponent";
 import MainMenu from "./MainMenu";
 import { TranslationProvider } from "../context/Translation";
 import { ModalProvider } from "../context/ModalContext";

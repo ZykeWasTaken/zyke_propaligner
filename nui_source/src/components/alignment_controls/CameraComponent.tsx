@@ -1,7 +1,7 @@
 import { PerspectiveCamera } from "@react-three/drei";
-import { listen } from "./utils/nui-events";
 import { useThree } from "@react-three/fiber";
 import { MathUtils } from "three";
+import { listen } from "../utils/nui-events";
 
 export const CameraComponent = () => {
     const { camera } = useThree();
