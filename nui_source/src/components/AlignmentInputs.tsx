@@ -5,7 +5,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { callback, listen, send } from "./utils/nui-events";
 import PropAlignments from "./PropAlignments";
 import { useModalContext } from "../context/ModalContext";
-import History from "./History";
+import History from "./history/History";
 import { Accordion, LoadingOverlay } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import PresetMenu from "./presets/PresetMenu";
