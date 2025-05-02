@@ -161,7 +161,7 @@ const PropAlignments = ({
                     <p>{prop}</p>
                 </div>
             </Button>
-            <Modal id={modalId} title={prop} icon={<FaBox />}>
+            <Modal id={modalId} title={prop} icon={<FaBox />} closeButton>
                 {/* Prop */}
                 <div
                     style={{
