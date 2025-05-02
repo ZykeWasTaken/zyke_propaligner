@@ -7,7 +7,7 @@ interface TextInput {
     description?: string;
     value: string;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-    error?: string;
+    error?: string | boolean;
     asterisk?: boolean;
     disabled?: boolean;
     icon?: React.ReactNode;
