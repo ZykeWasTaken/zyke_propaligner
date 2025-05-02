@@ -6,12 +6,15 @@ import _color from "./Color";
 import { Loader } from "@mantine/core";
 import GetVarValue from "./GetVarValue";
 import chroma, { Color } from "chroma-js";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
+import Tooltip from "./Tooltip";
 
-interface Buttonprops {
+export interface ButtonProps {
     icon?: React.ReactNode;
     rightIcon?: "dialog" | "newPage" | "confirm";
     useRightIconAnimation?: boolean;
+    tooltipLabel?: string | undefined;
+    disableRipple?: boolean;
 
     hollow?: boolean;
     removeDefaultComponent?: boolean;
@@ -25,20 +28,30 @@ interface Buttonprops {
 
     disabled?: boolean;
     loading?: boolean;
-    loadDelay?: number;
+    loadDelay?: number | [number, number]; // Artifical delay when loading and pressing buttons
     shouldLoad?: () => boolean;
 
     onClick?: (e?: React.MouseEventHandler<HTMLButtonElement>) => void;
+    onMouseEnter?: React.MouseEventHandler<HTMLButtonElement>;
+    onMouseLeave?: React.MouseEventHandler<HTMLButtonElement>;
 
     children: React.ReactNode;
 }
 
-const Button: React.FC<Buttonprops> = ({
+const rightIcons = {
+    ["dialog"]: <ContentPasteGoIcon className="rightIcon" />,
+    ["newPage"]: <KeyboardDoubleArrowRightIcon className="rightIcon" />,
+    ["confirm"]: <CheckIcon className="rightIcon" />,
+};
+
+const Button: React.FC<ButtonProps> = ({
     icon,
     rightIcon,
     useRightIconAnimation,
+    tooltipLabel,
+    disableRipple = false,
 
-    hollow,
+    hollow = false,
     removeDefaultComponent,
     color,
     buttonStyling,
@@ -49,219 +62,167 @@ const Button: React.FC<Buttonprops> = ({
     wide, // Width 100%, centering content
 
     disabled,
-    loading,
+    loading = false,
     loadDelay, // Artifical delay when loading and pressing buttons
     shouldLoad,
 
     onClick,
+    onMouseEnter,
+    onMouseLeave,
 
     children,
 }) => {
-    const [_loading, setLoading] = useState(false);
+    // const [_loading, setLoading] = useState(false);
+    const [internalLoading, setInternalLoading] = useState(false);
+    const isLoading = loading || internalLoading;
 
-    useEffect(() => {
-        if (typeof loading !== "boolean") return;
-
-        setLoading(loading);
-    }, [loading]);
-
-    const defaultBackground = "var(--grey)";
-    const defaultText = "var(--text)";
-
-    const colorToUse = color
-        ? GetVarValue(color)
-        : GetVarValue(defaultBackground);
-
-    const _backgroundColor: Color = chroma(colorToUse);
-
-    const text = GetVarValue(defaultText);
-    const _textColor = hollow ? _backgroundColor : chroma(text); // When hollow, set color same as background
-
-    const rightIcons = {
-        ["dialog"]: <ContentPasteGoIcon className="rightIcon" />,
-        ["newPage"]: <KeyboardDoubleArrowRightIcon className="rightIcon" />,
-        ["confirm"]: <CheckIcon className="rightIcon" />,
-    };
-
-    const isDisabled = disabled || _loading || false;
-
-    //
-    // Background Color
-    //
-
-    let backgroundColor: Color;
-    backgroundColor = hollow ? _backgroundColor.alpha(0.2) : _backgroundColor;
-
-    // When disabled, remove contrast / dim it by opacity
-    if (isDisabled) {
-        backgroundColor = hollow
-            ? backgroundColor.darken(0.5).desaturate(1.5).alpha(0.1)
-            : backgroundColor.alpha(0.5);
-    }
-
-    //
-    // Border color
-    //
-
-    let borderColor: Color | "transparent";
-    if (hollow) {
-        borderColor = "transparent";
-    } else {
-        borderColor = backgroundColor.brighten(0.2);
-
-        if (isDisabled) {
-            borderColor = backgroundColor.alpha(0);
-        }
-    }
-
-    //
-    // Text color
-    //
-
-    let textColor; // Text, icons & loaders
-    textColor = _textColor;
-    if (isDisabled) {
-        textColor = hollow
-            ? textColor.darken(0.5).desaturate(1.5)
-            : textColor.alpha(0.5);
-    }
-
-    const backgroundHex = backgroundColor.hex();
-    const textHex = textColor.hex();
-    const borderHex =
-        (borderColor === "transparent" ? "transparent" : borderColor.hex()) +
-        " !important";
-
-    const getHoverValue = (color: Color): string => {
-        return color.brighten(0.5).hex();
-    };
+    const isClickDisabled = disabled || isLoading || false;
+    const { backgroundColor, borderColor, textColor, hoverValue } = getColor(
+        hollow,
+        color,
+        isClickDisabled
+    );
 
     const _onClick = () => {
         let _shouldLoad = true;
         if (shouldLoad) _shouldLoad = shouldLoad();
 
         if (loadDelay && _shouldLoad) {
-            setLoading(true);
+            setInternalLoading(true);
+
+            let toWait;
+            if (Array.isArray(loadDelay)) {
+                toWait =
+                    loadDelay[0] +
+                    Math.random() * (loadDelay[1] - loadDelay[0]);
+            } else {
+                toWait = loadDelay;
+            }
 
             setTimeout(async () => {
                 if (onClick) {
                     await onClick();
                 }
 
-                setLoading(false);
-            }, loadDelay);
+                setInternalLoading(false);
+            }, toWait);
         } else {
             if (onClick) onClick();
         }
     };
 
     return (
-        <MUIButton
-            variant="contained"
-            onClick={_onClick}
-            disabled={isDisabled}
-            sx={{
-                // Centering
-                display: "flex",
-                justifyContent: "start",
-                alignItems: "center",
+        <Tooltip label={tooltipLabel}>
+            <MUIButton
+                disableRipple={disableRipple}
+                variant="contained"
+                onClick={_onClick}
+                disabled={isClickDisabled}
+                sx={{
+                    // Centering
+                    display: "flex",
+                    justifyContent: "start",
+                    alignItems: "center",
 
-                // Text Stuff
-                textTransform: "none",
+                    // Text Stuff
+                    textTransform: "none",
 
-                // Width & Sizing Stuff
-                padding: "0.35rem 0.45rem 0.35rem 0.6rem !important",
-                minPadding: "0 0 0 0 !important",
-                boxSizing: "border-box",
+                    // Width & Sizing Stuff
+                    padding: "0.35rem 0.45rem 0.35rem 0.6rem !important",
+                    minPadding: "0 0 0 0 !important",
+                    boxSizing: "border-box",
 
-                margin: "0.5rem 0 0 0",
-                minHeight: "0 !important",
-                minWidth: "0 !important",
-                width: wide ? "100%" : "fit-content",
-                height: "fit-content",
-                borderRadius: "var(--mborderRadius)",
+                    margin: "0.5rem 0 0 0",
+                    minHeight: "0 !important",
+                    minWidth: "0 !important",
+                    width: wide ? "100%" : "fit-content",
+                    height: "fit-content",
+                    borderRadius: "var(--mborderRadius)",
 
-                // Colors
-                background: `${backgroundHex} !important`,
-                border: `1px solid ${borderHex} !important`,
+                    // Colors
+                    background: `${backgroundColor} !important`,
+                    border: `1px solid ${borderColor.hex()} !important`,
 
-                // Hover Main Button Div Styling
-                ["&:hover"]: {
-                    background: !isDisabled
-                        ? getHoverValue(backgroundColor) + " !important"
-                        : undefined,
+                    // Hover Main Button Div Styling
+                    ["&:hover"]: {
+                        background: !isClickDisabled
+                            ? `${hoverValue} !important`
+                            : undefined,
 
-                    // When Hovering Main, Right Icon Styling
+                        // When Hovering Main, Right Icon Styling
+                        ["& .rightIcon"]: {
+                            transform: useRightIconAnimation
+                                ? "translateX(35%)"
+                                : undefined,
+                        },
+                    },
+
+                    // Right Icon Styling
                     ["& .rightIcon"]: {
-                        transform: useRightIconAnimation
+                        transform: !useRightIconAnimation
                             ? "translateX(35%)"
                             : undefined,
-                    },
-                },
-
-                // Right Icon Styling
-                ["& .rightIcon"]: {
-                    transform: !useRightIconAnimation
-                        ? "translateX(35%)"
-                        : undefined,
-                    marginRight: "1rem",
-                },
-
-                ...buttonStyling,
-            }}
-        >
-            <Box
-                sx={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    width: "100%",
-
-                    // Icon Styling
-                    "& svg": {
-                        marginRight: "0.5rem",
-                        fontSize: "1.5rem",
-                        color: `${textHex}`,
-                        fill: `${textHex}`,
-                        transition: "all 0.2s ease-in-out",
-                        ...iconStyling,
+                        marginRight: "1rem",
                     },
 
-                    // Text Styling
-                    "& p": {
-                        color: `${textHex}`,
-                        fontSize: "1.4rem",
-                        margin: "0rem 0.2rem 0 0",
-                        fontWeight: hollow ? "400" : "400",
-                        transition: "all 0.2s ease-in-out",
-                        ...textStyling,
-                    },
-
-                    ...boxStyling,
+                    ...buttonStyling,
                 }}
+                onMouseEnter={onMouseEnter}
+                onMouseLeave={onMouseLeave}
             >
                 <Box
                     sx={{
                         display: "flex",
                         alignItems: "center",
-                        justifyContent: wide ? "center" : "start",
+                        justifyContent: "space-between",
                         width: "100%",
 
-                        ...textContainerStyling,
+                        // Icon Styling
+                        "& svg": {
+                            marginRight: "0.5rem",
+                            fontSize: "1.5rem",
+                            color: `${textColor.hex()}`,
+                            fill: `${textColor.hex()}`,
+                            transition: "all 0.2s ease-in-out",
+                            ...iconStyling,
+                        },
+
+                        // Text Styling
+                        "& p": {
+                            color: `${textColor.hex()}`,
+                            fontSize: "1.4rem",
+                            margin: "0rem 0.2rem 0 0",
+                            fontWeight: hollow ? "400" : "400",
+                            transition: "all 0.2s ease-in-out",
+                            ...textStyling,
+                        },
+
+                        ...boxStyling,
                     }}
                 >
-                    {icon && (
-                        <LeftIcon
-                            icon={icon}
-                            color={textHex}
-                            loading={_loading}
-                        />
-                    )}
-                    {removeDefaultComponent ? children : <p>{children}</p>}
+                    <Box
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: wide ? "center" : "start",
+                            width: "100%",
+
+                            ...textContainerStyling,
+                        }}
+                    >
+                        {icon && (
+                            <LeftIcon
+                                icon={icon}
+                                color={textColor.hex()}
+                                loading={isLoading}
+                            />
+                        )}
+                        {removeDefaultComponent ? children : <p>{children}</p>}
+                    </Box>
+                    {rightIcon && rightIcons[rightIcon]}
                 </Box>
-                {rightIcon && rightIcons[rightIcon]}
-            </Box>
-        </MUIButton>
+            </MUIButton>
+        </Tooltip>
     );
 };
 
@@ -295,4 +256,63 @@ const LeftIcon: React.FC<LeftIconProps> = ({ color, icon, loading }) => {
     ) : icon ? (
         <>{icon}</>
     ) : null;
+};
+
+// const { baseColor, textColor } = getColor(color);
+const getColor = (hollow: boolean, color?: string, isDisabled?: boolean) => {
+    //
+    // Background Color
+    //
+
+    const defaultBackground = "var(--grey)";
+    const baseBackground: Color = chroma(
+        GetVarValue(color || defaultBackground)
+    );
+
+    let backgroundColor: Color = baseBackground;
+
+    if (hollow) backgroundColor = baseBackground.alpha(0.2);
+    if (isDisabled) {
+        if (hollow) {
+            backgroundColor = backgroundColor
+                .darken(0.5)
+                .desaturate(1.5)
+                .alpha(0.1);
+        } else {
+            backgroundColor = backgroundColor.alpha(0.5);
+        }
+    }
+
+    //
+    // Border Color
+    //
+
+    let borderColor: Color | "transparent" = chroma("transparent");
+    if (!hollow) {
+        borderColor = baseBackground.brighten(0.2);
+        if (isDisabled) borderColor = backgroundColor.alpha(0);
+    }
+
+    //
+    // Text Color
+    //
+    const defaultText = "var(--text)";
+    const baseText: Color = chroma(GetVarValue(defaultText));
+    let textColor: Color = baseText;
+    if (hollow) textColor = baseBackground;
+
+    if (isDisabled) {
+        if (hollow) {
+            textColor = textColor.darken(0.5).desaturate(1.5);
+        } else {
+            textColor = textColor.alpha(0.5);
+        }
+    }
+
+    return {
+        backgroundColor,
+        borderColor,
+        textColor,
+        hoverValue: backgroundColor.brighten(0.5).hex(),
+    };
 };
