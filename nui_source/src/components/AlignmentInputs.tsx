@@ -124,6 +124,7 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
             bone: 0,
             offset: { x: 0.0, y: 0.0, z: 0.0 },
             rotation: { x: 0.0, y: 0.0, z: 0.0 },
+            particles: [],
             tempId: Math.floor(Math.random() * 1000000),
         };
 

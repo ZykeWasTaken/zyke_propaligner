@@ -114,37 +114,92 @@ function Alignment:EnsureProps()
 end
 
 function Alignment:SetGizmoEntity()
-    SendNUIMessage({
-        event = "setGizmoEntity",
-        data = {
-            handle = self.props[self.propIdx].entity,
-            position = vector3(self.props[self.propIdx].offset.z, self.props[self.propIdx].offset.y, -self.props[self.propIdx].offset.x + self.propRaise),
-            rotation = vector3(-self.props[self.propIdx].rotation.x, self.props[self.propIdx].rotation.z, self.props[self.propIdx].rotation.y)
-        }
-    })
+    if (self.currMode == "prop") then
+        SendNUIMessage({
+            event = "setGizmoEntity",
+            data = {
+                handle = self.props[self.propIdx].entity,
+                position = vector3(self.props[self.propIdx].offset.z, self.props[self.propIdx].offset.y, -self.props[self.propIdx].offset.x + self.propRaise),
+                rotation = vector3(-self.props[self.propIdx].rotation.x, self.props[self.propIdx].rotation.z, self.props[self.propIdx].rotation.y),
+                currMode = self.currMode,
+            }
+        })
+    elseif (self.currMode == "particle") then
+        SendNUIMessage({
+            event = "setGizmoEntity",
+            data = {
+                handle = self.props[self.propIdx].particles[self.particleIdx].handle,
+                position = vector3(self.props[self.propIdx].particles[self.particleIdx].offset.z, self.props[self.propIdx].particles[self.particleIdx].offset.y, -self.props[self.propIdx].particles[self.particleIdx].offset.x + self.propRaise),
+                -- rotation = vector3(-self.props[self.propIdx].particles[self.particleIdx].rotation.x, self.props[self.propIdx].particles[self.particleIdx].rotation.z, self.props[self.propIdx].particles[self.particleIdx].rotation.y)
+                rotation = vector3(0.0, 0.0, 0.0), -- Unused
+                currMode = self.currMode,
+            }
+        })
+    end
 end
 
-function Alignment:HighlightCurrent()
-    self.propHighlight = true
-    SetEntityDrawOutlineColor(255, 255, 255, 255)
+function Alignment:ClearHighlight()
+    self.propHighlight = false
 
-    for i = 1, #self.props do
-        if (self.props[i]?.entity and DoesEntityExist(self.props[i].entity)) then
-            SetEntityDrawOutline(self.props[i].entity, self.propIdx == i and true or false)
+    if (self.currMode == "prop") then
+        for i = 1, #self.props do
+            if (self.props[i].entity and DoesEntityExist(self.props[i].entity)) then
+                SetEntityDrawOutline(self.props[i].entity, false)
+            end
         end
     end
 end
 
+function Alignment:HighlightCurrent()
+    self.propHighlight = true
+
+    if (self.currMode == "prop") then
+        local prop = self.props[self.propIdx]
+        if (prop and prop.entity and DoesEntityExist(prop.entity)) then
+            SetEntityDrawOutline(prop.entity, true)
+            SetEntityDrawOutlineColor(255, 255, 255, 255)
+        end
+    end
+end
+
+---@param data {position: Vector3Table, rotation: Vector3Table}
+---@param cb fun(result: any)
 function Alignment:HandleMoveEntity(data, cb)
     if (not self.props[self.propIdx]?.entity or not DoesEntityExist(self.props[self.propIdx].entity)) then return end
 
-    -- Some conversions to get the correct values
-    self.props[self.propIdx].offset = vector3(self.propRaise - data.position.z, data.position.y, data.position.x)
-    self.props[self.propIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
+    if (self.currMode == "prop") then
+        -- Some conversions to get the correct values
+        self.props[self.propIdx].offset = vector3(self.propRaise - data.position.z, data.position.y, data.position.x)
+        self.props[self.propIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
 
-    local boneIdx = GetPedBoneIndex(PlayerPedId(), self.props[self.propIdx].bone)
+        local boneIdx = GetPedBoneIndex(PlayerPedId(), self.props[self.propIdx].bone)
 
-    AttachEntityToEntity(self.props[self.propIdx].entity, PlayerPedId(), boneIdx, self.props[self.propIdx].offset.x, self.props[self.propIdx].offset.y, self.props[self.propIdx].offset.z, self.props[self.propIdx].rotation.x, self.props[self.propIdx].rotation.y, self.props[self.propIdx].rotation.z, true, true, false, true, 1, true)
+        AttachEntityToEntity(
+            self.props[self.propIdx].entity,
+            PlayerPedId(),
+            boneIdx,
+            self.props[self.propIdx].offset.x,
+            self.props[self.propIdx].offset.y,
+            self.props[self.propIdx].offset.z,
+            self.props[self.propIdx].rotation.x,
+            self.props[self.propIdx].rotation.y,
+            self.props[self.propIdx].rotation.z,
+            true, true, false, true, 1, true
+        )
+    elseif (self.currMode == "particle") then
+        -- Some conversions to get the correct values
+        self.props[self.propIdx].particles[self.particleIdx].offset = vector3(self.propRaise - data.position.z, data.position.y, data.position.x)
+        -- self.props[self.propIdx].particles[self.particleIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z) -- Unused
+
+        SetParticleFxLoopedOffsets(
+            self.props[self.propIdx].particles[self.particleIdx].handle,
+            self.props[self.propIdx].particles[self.particleIdx].offset.x,
+            self.props[self.propIdx].particles[self.particleIdx].offset.y,
+            self.props[self.propIdx].particles[self.particleIdx].offset.z,
+            0.0, 0.0, 0.0
+        )
+    end
+
     cb("ok")
 end
 
@@ -173,13 +228,80 @@ function Alignment:EnsureAnim(skipCheck)
     end
 end
 
+-- Loop the props and then the particles, we check if there is a handle in the particles table and validate that
+-- If there is no handle or it is invalid, we start the particle effect
+function Alignment:EnsureParticles()
+    for i = 1, #self.props do
+        if (self.props[i].particles and DoesEntityExist(self.props[i].entity)) then
+            for j = 1, #self.props[i].particles do
+                local particleData = self.props[i].particles[j]
+
+                if (not particleData.handle or not DoesParticleFxLoopedExist(particleData.handle)) then
+                    UseParticleFxAssetNextCall(particleData.dict)
+
+                    particleData.handle = StartParticleFxLoopedOnEntity(
+                        particleData.clip,
+                        self.props[i].entity,
+                        particleData.offset.x,
+                        particleData.offset.y,
+                        particleData.offset.z,
+                        0.0,
+                        0.0,
+                        0.0,
+                        particleData.size + 0.0,
+                        false,
+                        false,
+                        false
+                    )
+                end
+            end
+        end
+    end
+end
+
+function Alignment:HighlightParticleOrigins()
+    for i = 1, #self.props do
+        if (self.props[i].particles and DoesEntityExist(self.props[i].entity)) then
+            for j = 1, #self.props[i].particles do
+                local particle = self.props[i].particles[j]
+                local pos = GetOffsetFromEntityInWorldCoords(self.props[i].entity, particle.offset.x, particle.offset.y, particle.offset.z)
+
+                DrawMarker(28, pos.x, pos.y, pos.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0075, 0.0075, 0.0075, 255, 0, 0, 255, false, true, 2, true, nil, nil, false)
+
+                if (self.currMode == "particle" and self.propHighlight and self.particleIdx == j) then
+                    DrawMarker(28, pos.x, pos.y, pos.z, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.03, 0.03, 0.03, 255, 255, 255, 100, false, true, 2, true, nil, nil, false)
+                end
+            end
+        end
+    end
+end
+
 ---@param data AlignmentData
 ---@return {offset: Vector3Table, rotation: Vector3Table}[] | nil, FailReason?
 function Alignment:Enter(data)
+    self = setmetatable({}, Alignment)
+
     -- First, validate the data input
     for i = 1, #data.props do
         if (not Z.loadModel(data.props[i].prop)) then
             return nil, "invalidModel"
+        end
+
+        if (data.props[i].particles) then
+            for j = 1, #data.props[i].particles do
+                self.hasParticles = true
+                RequestNamedPtfxAsset(data.props[i].particles[j].dict)
+
+                local started = GetGameTimer()
+
+                while (not HasNamedPtfxAssetLoaded(data.props[i].particles[j].dict)) do
+                    if (GetGameTimer() - started > 2000) then
+                        return nil, "invalidParticleDict"
+                    end
+
+                    Wait(25)
+                end
+            end
         end
     end
 
@@ -188,8 +310,6 @@ function Alignment:Enter(data)
     if (not validAnims.clip) then return nil, "invalidClip" end
 
     Alignment.orgPos = GetEntityCoords(PlayerPedId())
-
-    self = setmetatable({}, Alignment)
     Alignment.active = self
 
     self.scaleform = Z.instructionalButtons.create()
@@ -218,6 +338,9 @@ function Alignment:Enter(data)
 	---@type integer
     self.propIdx = 1
 
+    ---@type integer
+    self.particleIdx = self.hasParticles and 1 or 0
+
 	---@type boolean
     self.propHighlight = false
 
@@ -233,6 +356,9 @@ function Alignment:Enter(data)
             self.props[i].rotation[axis] = val + 0.0
         end
     end
+
+    ---@type "prop" | "particle"
+    self.currMode = "prop"
 
 	---@class AnimationData
 	---@field dict string
@@ -294,14 +420,19 @@ function Alignment:Enter(data)
                 SetNuiFocusKeepInput(false)
             end)
         end},
-        {label = T("instruct:toggleRot"), key = "R", func = function() end},
+        {label = T("instruct:toggleRot"), key = "R",
+            func = function()
+            end,
+            isInactive = function()
+                return self.currMode == "particle"
+            end
+        },
         {label = T("instruct:toggleAnim"), key = "X", func = function()
             self.anim.loopingAnimation = not self.anim.loopingAnimation
 
             if (not self.anim.loopingAnimation) then
                 ClearPedTasks(ply)
             else
-                -- ensureAnim(true)
                 self:EnsureAnim(true)
             end
         end},
@@ -325,30 +456,67 @@ function Alignment:Enter(data)
                 ClearPedTasks(ply)
             end
         },
-        {label = "Prop", key = {"UP", "DOWN"},
+        {label = "Iterate Current", key = {"UP", "DOWN"},
             getLabel = function()
-                return T("instruct:currProp"):format(self.propIdx, #self.props)
+                if (self.currMode == "prop") then
+                    return T("instruct:currProp"):format(self.propIdx, #self.props)
+                else
+                    return T("instruct:currParticle"):format(self.particleIdx, #self.props[self.propIdx].particles)
+                end
             end,
             func = function(_, key)
-                local propsLen = #self.props
-                if (propsLen == 1) then return end
+                if (self.currMode == "prop") then
+                    local propsLen = #self.props
+                    if (propsLen == 1) then return end
 
-                self.propIdx = key == "UP" and self.propIdx == 1 and propsLen or self.propIdx - 1
-                if (self.propIdx == propsLen) then self.propIdx = 1 end
-                if (self.propIdx == 0) then self.propIdx = propsLen end
+                    self.propIdx = key == "UP" and self.propIdx == 1 and propsLen or self.propIdx - 1
+                    if (self.propIdx > propsLen) then self.propIdx = 1 end
+                    if (self.propIdx == 0) then self.propIdx = propsLen end
 
-                if (self.propHighlight) then
-                    self:HighlightCurrent()
+                    self.particleIdx = self.hasParticles and 1 or 0
+
+                    if (self.propHighlight) then
+                        self:ClearHighlight()
+                        self:HighlightCurrent()
+                    end
+                else
+                    local particlesLen = #self.props[self.propIdx].particles
+                    if (particlesLen == 1) then return end
+
+                    self.particleIdx = key == "UP" and self.particleIdx == 1 and particlesLen or self.particleIdx - 1
+                    if (self.particleIdx > particlesLen) then self.particleIdx = 1 end
+                    if (self.particleIdx == 0) then self.particleIdx = particlesLen end
+
+                    if (self.propHighlight) then
+                        self:HighlightCurrent()
+                    end
                 end
 
+                self:SetGizmoEntity()
+                self.buttons:ensureLabels()
+            end
+        },
+        {label = "Mode", key = "G",
+            isInactive = function()
+                return not self.hasParticles
+            end,
+            getLabel = function()
+                return self.currMode == "prop" and T("instruct:propMode") or T("instruct:particleMode")
+            end,
+            func = function()
+                self.propIdx = 1
+                self.particleIdx = self.hasParticles and 1 or 0
+
+                self:ClearHighlight()
+
+                self.currMode = self.currMode == "prop" and "particle" or "prop"
                 self.buttons:ensureLabels()
                 self:SetGizmoEntity()
             end
         },
         {label = "Highlight Current", key = "H", func = function()
             if (self.propHighlight) then
-                SetEntityDrawOutline(self.props[self.propIdx].entity, false)
-                self.propHighlight = false
+                self:ClearHighlight()
             else
                 self:HighlightCurrent()
             end
@@ -357,6 +525,7 @@ function Alignment:Enter(data)
 
     self.buttons:ensureLabels()
 
+    self:EnsureAnim(true)
     while (Alignment.active == self) do
         ply = PlayerPedId()
         self.scaleform:render()
@@ -364,6 +533,11 @@ function Alignment:Enter(data)
 
         self:RestrictMovement()
         self:EnsureAnim()
+
+        if (self.hasParticles) then
+            self:HighlightParticleOrigins()
+            self:EnsureParticles()
+        end
 
         Z.drawText(("Anim. Progress: %s/%ss"):format(math.floor(GetEntityAnimCurrentTime(ply, self.anim.dict, self.anim.clip) * self.anim:getAnimDur() * 100) / 100, self.anim:getAnimDur()), 0.9, 0.9, nil, nil, "right")
 
@@ -393,6 +567,20 @@ function Alignment:Enter(data)
             Wait(1)
         end
     end)
+
+    for i = 1, #self.props do
+        if (self.props[i].particles) then
+            for j = 1, #self.props[i].particles do
+                local particleData = self.props[i].particles[j]
+
+                if (particleData.handle and DoesParticleFxLoopedExist(particleData.handle)) then
+                    StopParticleFxLooped(particleData.handle, false)
+                    RemoveNamedPtfxAsset(particleData.dict)
+                    particleData.handle = nil
+                end
+            end
+        end
+    end
 
     local retVal = {
         dict = self.anim.dict,

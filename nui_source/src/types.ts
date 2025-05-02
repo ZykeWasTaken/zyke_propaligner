@@ -4,6 +4,13 @@ export interface OpenedModal {
     [key: string]: any;
 }
 
+export interface ParticleAlignmentData {
+    dict: string;
+    clip: string;
+    offset: { x: number; y: number; z: number };
+    size: number;
+}
+
 export interface AlignmentData {
     dict: string;
     clip: string;
@@ -15,6 +22,7 @@ export interface PropAlignmentData {
     bone: number;
     offset: { x: number; y: number; z: number };
     rotation: { x: number; y: number; z: number };
+    particles: ParticleAlignmentData[] | null;
     tempId: number;
 }
 

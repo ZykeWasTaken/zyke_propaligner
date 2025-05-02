@@ -3,9 +3,31 @@ import { TransformControls } from "@react-three/drei";
 import { Mesh, MathUtils } from "three";
 import { listen, send } from "../utils/nui-events";
 
+type alignmentMode = "prop" | "particle";
+
+interface GizmoReset {
+    handle: null;
+}
+
+interface GizmoData {
+    handle: number | null;
+    position: {
+        x: number;
+        y: number;
+        z: number;
+    };
+    rotation: {
+        x: number;
+        y: number;
+        z: number;
+    };
+    currMode: alignmentMode;
+}
+
 export const TransformComponent = () => {
     const mesh = useRef<Mesh>(null!);
-    const [currentEntity, setCurrentEntity] = useState<number>();
+    const [currentEntity, setCurrentEntity] = useState<number | null>();
+    const [currMode, setCurrMode] = useState<alignmentMode>("prop");
     const [editorMode, setEditorMode] = useState<
         "translate" | "rotate" | undefined
     >("translate");
@@ -28,9 +50,16 @@ export const TransformComponent = () => {
         send("moveEntity", entity, "moveEntity");
     };
 
-    listen("setGizmoEntity", (entity: any) => {
+    listen("setGizmoEntity", (entity: GizmoReset | GizmoData) => {
         setCurrentEntity(entity.handle);
         if (!entity.handle) return;
+
+        setCurrMode(entity.currMode);
+
+        // If we're switching to particle, make sure we're in translate mode
+        if (entity.currMode == "particle" && editorMode === "rotate") {
+            setEditorMode("translate");
+        }
 
         mesh.current.position.set(
             entity.position.x,
@@ -50,6 +79,8 @@ export const TransformComponent = () => {
         const keyHandler = (e: KeyboardEvent) => {
             switch (e.code) {
                 case "KeyR":
+                    if (currMode === "particle") return;
+
                     const newMode =
                         editorMode === "rotate" ? "translate" : "rotate";
 
@@ -62,7 +93,7 @@ export const TransformComponent = () => {
 
         window.addEventListener("keydown", keyHandler);
         return () => window.removeEventListener("keydown", keyHandler);
-    }, [editorMode]);
+    }, [editorMode, currMode]);
 
     return (
         <>

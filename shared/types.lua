@@ -3,11 +3,19 @@
 ---@field clip string
 ---@field props PropAlignmentData[]
 
+---@class ParticleAlignmentData
+---@field dict string
+---@field clip string
+---@field offset Vector3Table
+---@field size number
+---@field handle? integer
+
 ---@class PropAlignmentData
 ---@field prop string
 ---@field bone integer
 ---@field offset Vector3Table
 ---@field rotation Vector3Table
+---@field particles ParticleAlignmentData[] | nil
 ---@field entity? Prop
 
 ---@class EditingPropData : PropAlignmentData

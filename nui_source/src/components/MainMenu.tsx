@@ -55,7 +55,7 @@ const MainMenu = () => {
                 onClose={() => send("CloseMenu", undefined, undefined)}
                 closeButton
                 modalStyling={{
-                    width: "60rem",
+                    width: "55rem",
                 }}
             >
                 <AlignmentInputs bones={bones} />

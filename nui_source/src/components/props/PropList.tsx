@@ -1,4 +1,3 @@
-import { Accordion } from "@mantine/core";
 import React from "react";
 import PropAlignments from "./PropAlignments";
 import { AlignmentData, Bone } from "../../types";

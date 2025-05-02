@@ -3,7 +3,7 @@ import ZoomOutMapIcon from "@mui/icons-material/ZoomOutMap";
 import CropRotateIcon from "@mui/icons-material/CropRotate";
 import { useTranslation } from "../../context/Translation";
 import NumberInput from "../utils/NumberInput";
-import { AlignmentData, Bone } from "../../types";
+import { AlignmentData, Bone, ParticleAlignmentData } from "../../types";
 import TextInput from "../utils/TextInput";
 import { FaBox } from "react-icons/fa6";
 import { useDebouncedValue } from "@mantine/hooks";
@@ -19,18 +19,10 @@ import Modal from "../utils/Modal";
 import { useModalContext } from "../../context/ModalContext";
 import DottedBackground from "../utils/DottedBackground";
 import CornerStyling from "../utils/CornerStyling";
+import SectionTitle from "../utils/SectionTitle";
+import ParticleSection from "../particle_section/ParticleSection";
 
-const PropAlignments = ({
-    idx,
-    prop,
-    bone,
-    offset,
-    rotation,
-    setEditingData,
-    totalProps,
-    bones,
-    tempId,
-}: {
+interface PropAlignmentsProps {
     idx: number;
     prop: string;
     bone: number;
@@ -40,6 +32,20 @@ const PropAlignments = ({
     totalProps: number;
     bones: Bone[];
     tempId: number;
+    particles: ParticleAlignmentData[] | null;
+}
+
+const PropAlignments: React.FC<PropAlignmentsProps> = ({
+    idx,
+    prop,
+    bone,
+    offset,
+    rotation,
+    setEditingData,
+    totalProps,
+    bones,
+    tempId,
+    particles,
 }) => {
     const T = useTranslation();
     const [propModelChange] = useDebouncedValue(prop, 500);
@@ -158,11 +164,24 @@ const PropAlignments = ({
                             {idx + 1}
                         </p>
                     </div>
-                    <p>{prop}</p>
+                    <p>{prop.length > 0 ? prop : T("missingProp")}</p>
                 </div>
             </Button>
-            <Modal id={modalId} title={prop} icon={<FaBox />} closeButton>
+            <Modal
+                id={modalId}
+                title={prop.length > 0 ? prop : T("missingProp")}
+                icon={<FaBox />}
+                closeButton
+                modalStyling={{
+                    width: "65rem",
+                }}
+            >
                 {/* Prop */}
+                <SectionTitle
+                    text={T("propAlignmentSectionTitle")}
+                    ignoreSpacing
+                />
+
                 <div
                     style={{
                         display: "grid",
@@ -280,6 +299,21 @@ const PropAlignments = ({
                         onChange={(e) => setValue("rotation", "z", e)}
                     />
                 </div>
+
+                <ParticleSection
+                    particles={particles}
+                    setEditingData={setEditingData}
+                    propIdx={idx}
+                />
+
+                <div
+                    style={{
+                        width: "15rem",
+                        height: "1px",
+                        background: "rgba(var(--grey4))",
+                        margin: "1.25rem auto 0.75rem auto",
+                    }}
+                />
 
                 <div
                     style={{

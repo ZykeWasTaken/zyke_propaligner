@@ -6,6 +6,7 @@ return {
     ["noPresetDataFound"] = {msg = "This preset could not be found. Please refresh.", type = "error"},
     ["presetExportedJson"] = {msg = "Preset has been exported in JSON format to your clipboard.", type = "success"},
     ["invalidJsonImport"] = {msg = "The JSON data was invalid.", type = "error"},
+    ["invalidParticleDict"] = {msg = "Could not load particle dict in reasonable time.", type = "error"},
 
     ["propAlignerTitle"] = "Prop Alignment Menu",
     ["propLabel"] = "Prop",
@@ -41,10 +42,21 @@ return {
     ["invalidModelWarning"] = "Invalid Model",
     ["addMoreProps"] = "Add More",
     ["addFirstProp"] = "No Props? Add Some!",
+    ["addParticle"] = "Add More",
     ["deleteProp"] = "Delete",
     ["makePrimary"] = "Make Primary",
     ["invalid"] = "Invalid",
     ["backButton"] = "Save & Exit",
+    ["propAlignmentSectionTitle"] = "Prop Alignment",
+    ["particleAlignmentSectionTitle"] = "Particle Alignment",
+    ["addParticleAlignment"] = "Add Particle",
+    ["deleteParticle"] = "Delete Particle",
+    ["particleSize"] = "Particle Size",
+    ["particleDict"] = "Particle Dictionary",
+    ["particleClip"] = "Particle Clip",
+    ["invalidParticleWarning"] = "Particles can not be validated efficiently. Please verify your inputs before proceeding.",
+    ["missingProp"] = "Missing Prop",
+    ["particle"] = "Particle",
 
     -- Alignment Button Instructions
     ["instruct:save"] = "Save",
@@ -54,4 +66,7 @@ return {
     ["instruct:toggleAnim"] = "Toggle Animation",
     ["instruct:speed"] = "Speed - %s", -- %s = speed
     ["instruct:currProp"] = "Prop (%s/%s)", -- %s = current, %s = total
+    ["instruct:currParticle"] = "Particle (%s/%s)", -- %s = current, %s = total]
+    ["instruct:propMode"] = "Prop Mode",
+    ["instruct:particleMode"] = "Particle Mode",
 }

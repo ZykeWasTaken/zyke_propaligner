@@ -3,9 +3,6 @@ game "gta5"
 lua54 "yes"
 version "1.2.2"
 
-ui_page "nui/index.html"
--- ui_page "nui_source/hot_reload.html"
-
 shared_scripts {
     "@zyke_lib/imports.lua",
     "shared/config.lua",
@@ -25,10 +22,14 @@ client_scripts {
 	"client/alignment.lua",
 }
 
+ui_page "nui/index.html"
+-- ui_page "nui_source/hot_reload.html"
+
 files {
     "nui/**/*",
-    "locales/*.lua",
     -- "nui_source/hot_reload.html",
+
+    "locales/*.lua",
 }
 
 dependencies {
