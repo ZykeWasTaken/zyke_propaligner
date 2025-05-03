@@ -26,6 +26,7 @@ The entire project is the first effort to make a great alignment menu, and more 
 
 -   [Discord Community](https://discord.gg/zykeresources)
 -   [Store](https://store.zykeresources.com)
+-   [Documentation](https://docs.zykeresources.com/free-resources/propaligner)
 
 ## Credits
 
