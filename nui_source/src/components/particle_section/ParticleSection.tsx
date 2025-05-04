@@ -22,8 +22,6 @@ const ParticleSection: React.FC<ParticleSectionProps> = ({
     const [accOpen, setAccOpen] = useState<string | null>(null);
 
     const addBaseParticle = async () => {
-        console.log("Adding base particle alignment");
-
         setEditingData((prev) => ({
             ...prev,
             props: prev.props.map((prop, idx) => {
