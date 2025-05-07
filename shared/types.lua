@@ -16,7 +16,8 @@
 ---@field offset Vector3Table
 ---@field rotation Vector3Table
 ---@field particles ParticleAlignmentData[] | nil
----@field entity? Prop
+---@field entity? Prop @Entity id when spawned
+---@field tempId? integer @UI stuff for keys
 
 ---@class EditingPropData : PropAlignmentData
 ---@field entity? integer
