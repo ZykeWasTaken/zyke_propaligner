@@ -582,6 +582,11 @@ function Alignment:Enter(data)
         end
     end
 
+    for i = 1, #self.props do
+        self.props[i].entity = nil
+        self.props[i].tempId = nil
+    end
+
     local retVal = {
         dict = self.anim.dict,
         clip = self.anim.clip,
