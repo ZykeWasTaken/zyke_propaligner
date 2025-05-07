@@ -21,7 +21,9 @@ The entire project is the first effort to make a great alignment menu, and more 
 
 ## Showcase
 
-<img src="https://r2.fivemanage.com/mS9apQyi6ahmBBRtVnQAv/PropalignerShowcaseMenu.png" style="width: 800px; height: auto;">
+<img src="https://github.com/user-attachments/assets/318fb3b9-35bc-4fad-96df-69a8e629ba47" style="width: 800px; height: auto;">
+
+<img src="https://github.com/user-attachments/assets/543885d7-ca03-4374-b473-83085684f182" style="width: 800px; height: auto;">
 
 <img src="https://r2.fivemanage.com/mS9apQyi6ahmBBRtVnQAv/PropalignerShowcaseAlignment.png" style="width: 800px; height: auto;">
 
