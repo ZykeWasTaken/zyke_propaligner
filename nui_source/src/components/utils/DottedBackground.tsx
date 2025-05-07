@@ -22,6 +22,7 @@ const DottedBackground: React.FC<DottedBackgroundProps> = ({
                 zIndex: 2,
                 opacity: hovered ? 1.0 : 0.3,
                 transition: "opacity 0.2s",
+                pointerEvents: "none",
             }}
         />
     );
