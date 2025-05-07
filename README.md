@@ -8,6 +8,17 @@ This is an easy-to-use solution to your prop alignment hell. With our sleek UI y
 
 The entire project is the first effort to make a great alignment menu, and more updates to streamline the process will come in the future once I am available to work on it.
 
+# Features
+- Sleek & modern UI for all inputs along with smart validation.
+- Supports multiple props.
+- Offset & rotation to player.
+- Particle alignments offset from the prop.
+- Possible to integrate into resources using exports, provide & return alignments with ease.
+- Plays animation for realistic interactions, with different speeds.
+- Server-wide presets to load pre-defined configurations.
+- Export & import presets to share.
+- Client-sided history to save your recent configurations.
+
 ## Showcase
 
 <img src="https://r2.fivemanage.com/mS9apQyi6ahmBBRtVnQAv/PropalignerShowcaseMenu.png" style="width: 800px; height: auto;">
