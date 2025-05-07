@@ -39,6 +39,7 @@ interface ModalProps {
         animate?: AnimationControls;
         exit?: TargetAndTransition;
     };
+    onExited?: () => void;
 }
 
 const Modal: React.FC<ModalProps> = ({
@@ -68,6 +69,7 @@ const Modal: React.FC<ModalProps> = ({
     modalStyling,
     headerStyling,
     modalAnimation,
+    onExited,
 }) => {
     const { modalsOpen } = useModalContext();
     const [open, setOpen] = useState(false);
@@ -138,7 +140,7 @@ const Modal: React.FC<ModalProps> = ({
                 idx={idx.current - 1}
             />
             <Loading open={open} loading={loading ? true : false} />
-            <AnimatePresence>
+            <AnimatePresence onExitComplete={onExited}>
                 {open && !loading && (
                     <motion.div
                         className="modal-content"
