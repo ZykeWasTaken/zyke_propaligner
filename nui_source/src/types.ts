@@ -15,6 +15,7 @@ export interface AlignmentData {
     dict: string;
     clip: string;
     props: PropAlignmentData[];
+    created?: number; // Saved in database and may exist, but not used in the alignment
 }
 
 export interface PropAlignmentData {
