@@ -1,5 +1,6 @@
 Z.registerCommand(Config.Settings.openCommand, function()
     if (not Z.hasPermission(Config.Settings.permissions.useMenu)) then return end
+    if (not MountedUI) then return Z.notify("uiNotMounted") end
 
     OpenMenu()
 end, "Open tools to get prop alignments")

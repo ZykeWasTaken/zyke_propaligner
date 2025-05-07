@@ -7,6 +7,7 @@ return {
     ["presetExportedJson"] = {msg = "Preset has been exported in JSON format to your clipboard.", type = "success"},
     ["invalidJsonImport"] = {msg = "The JSON data was invalid.", type = "error"},
     ["invalidParticleDict"] = {msg = "Could not load particle dict in reasonable time.", type = "error"},
+    ["uiNotMounted"] = {msg = "UI has not mounted yet, please try again.", type = "warning"},
 
     ["propAlignerTitle"] = "Prop Alignment Menu",
     ["propLabel"] = "Prop",

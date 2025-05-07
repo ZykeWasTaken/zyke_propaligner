@@ -1,3 +1,5 @@
+MountedUI = false
+
 RegisterNUICallback("Eventhandler", function(passed, cb)
     local event <const> = passed.event
     local data <const> = passed.data
@@ -6,6 +8,10 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         CloseMenu()
 
         cb("ok")
+    elseif (event == "MountedUI") then
+        MountedUI = true
+
+        return cb("ok")
     elseif (event == "MenuUnmounted") then
         -- Runs when the menu is unmounted
         -- Filter when not truly "closed", to avoid accidental trigger when entering alignment mode

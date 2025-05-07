@@ -46,6 +46,10 @@ const MainMenu = () => {
         );
     }, []);
 
+    useEffect(() => {
+        send("MountedUI", null);
+    }, []);
+
     return (
         <>
             <Modal
