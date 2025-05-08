@@ -248,7 +248,7 @@ const VisualizeDataModalContent: React.FC<{ data: any; title?: string }> = ({
                             onClick={copyText}
                             plain
                             iconStyling={{
-                                fill: "rgba(var(--blue2))",
+                                fill: "rgba(var(--secIcon))",
                                 fontSize: "1.8rem",
                             }}
                         >
@@ -265,7 +265,7 @@ const VisualizeDataModalContent: React.FC<{ data: any; title?: string }> = ({
                             top: "0.5rem",
                         }}
                         iconStyling={{
-                            fill: "rgba(var(--blue2))",
+                            fill: "rgba(var(--secIcon))",
                             fontSize: "1.8rem",
                         }}
                     >
