@@ -59,6 +59,7 @@ return {
     ["missingProp"] = "Missing Prop",
     ["particle"] = "Particle",
     ["visualizeData"] = "Visualize Data",
+    ["alignmentPosition"] = "Alignment Position",
 
     -- Alignment Button Instructions
     ["instruct:save"] = "Save",

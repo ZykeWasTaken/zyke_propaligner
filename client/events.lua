@@ -25,6 +25,7 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
             Settings = {
                 maxHistory = Config.Settings.maxHistory,
                 presetsPerPage = Config.Settings.presetsPerPage,
+                alignmentPosition = Config.Settings.alignmentPosition
             }
         })
     elseif (event == "GetStrings") then
@@ -40,15 +41,15 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         Wait(100)
 
         -- Validate & load prop models
-        for i = 1, #data.props do
-            if (not Z.loadModel(data.props[i].prop, true)) then
+        for i = 1, #data.editingData.props do
+            if (not Z.loadModel(data.editingData.props[i].prop, true)) then
                 Z.notify("invalidModel")
                 return cb("ok")
             end
         end
 
         -- Validate animation dict & clip
-        local validAnims = IsAnimValid(data.dict, data.clip)
+        local validAnims = IsAnimValid(data.editingData.dict, data.editingData.clip)
         if (not validAnims.dict) then Z.notify("invalidDict") return cb("ok") end
         if (not validAnims.clip) then Z.notify("invalidClip") return cb("ok") end
 
@@ -56,8 +57,9 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
         SendNUIMessage({event = "SetSuspension", data = true})
 
         CreateThread(function()
-            -- StartEditing(data)
-            Alignment:Enter(data)
+            local _, alignmentIdx = Z.table.find(Config.Settings.alignmentPosition, function(pos) return pos.name == data.alignmentPosition end)
+
+            Alignment:Enter(data.editingData, alignmentIdx)
         end)
 
         return cb("ok")

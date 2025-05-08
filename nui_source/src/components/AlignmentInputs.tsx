@@ -20,6 +20,9 @@ import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import PropList from "./props/PropList";
 import { useVisualizeData } from "../context/VisualizeData";
 import CodeIcon from "@mui/icons-material/Code";
+import Select from "./utils/Select";
+import { useConfig } from "../context/ConfigContext";
+import MapIcon from "@mui/icons-material/Map";
 
 interface LocalProps {
     bones: Bone[];
@@ -27,6 +30,7 @@ interface LocalProps {
 
 const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
     const T = useTranslation();
+    const config = useConfig();
     const { closeModal } = useModalContext();
     const { openVisualizeModal } = useVisualizeData();
     const [submitting, setSubmitting] = useState<boolean>(false);
@@ -35,6 +39,10 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
         clip: "",
         props: [],
     });
+    const [alignmentPosition, setAlignmentPosition] = useState<string>(
+        config.Settings.alignmentPosition[0].name
+    );
+
     const editingDataRef = useRef(editingData);
 
     const [loading, setLoading] = useState<boolean>(false);
@@ -49,7 +57,11 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
         setSubmitting(true);
         if (e) e.preventDefault();
 
-        callback("StartEditing", { ...editingData }, undefined).then(() => {
+        callback(
+            "StartEditing",
+            { editingData, alignmentPosition },
+            undefined
+        ).then(() => {
             setSubmitting(false);
         });
     };
@@ -227,6 +239,14 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                 <AnimationSection
                     editingData={editingData}
                     setEditingData={setEditingData}
+                />
+
+                <Select
+                    label={T("alignmentPosition")}
+                    icon={<MapIcon />}
+                    content={config.Settings.alignmentPosition}
+                    onChange={(value) => setAlignmentPosition(value)}
+                    value={alignmentPosition}
                 />
 
                 <PropList

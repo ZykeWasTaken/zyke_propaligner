@@ -10,8 +10,6 @@
 Alignment = {
     active = nil,
     orgPos = nil,
-    playerRaise = 1000.0,
-    propRaise = 1002.0,
 }
 
 Alignment.__index = Alignment
@@ -119,8 +117,16 @@ function Alignment:SetGizmoEntity()
             event = "setGizmoEntity",
             data = {
                 handle = self.props[self.propIdx].entity,
-                position = vector3(self.props[self.propIdx].offset.z, self.props[self.propIdx].offset.y, -self.props[self.propIdx].offset.x + self.propRaise),
-                rotation = vector3(-self.props[self.propIdx].rotation.x, self.props[self.propIdx].rotation.z, self.props[self.propIdx].rotation.y),
+                position = vector3(
+                    self.props[self.propIdx].offset.z + self.pos.x,
+                    self.props[self.propIdx].offset.y + self.pos.y,
+                    -self.props[self.propIdx].offset.x + self.propRaise
+                ),
+                rotation = vector3(
+                    -self.props[self.propIdx].rotation.x,
+                    self.props[self.propIdx].rotation.z,
+                    self.props[self.propIdx].rotation.y
+                ),
                 currMode = self.currMode,
             }
         })
@@ -129,8 +135,11 @@ function Alignment:SetGizmoEntity()
             event = "setGizmoEntity",
             data = {
                 handle = self.props[self.propIdx].particles[self.particleIdx].handle,
-                position = vector3(self.props[self.propIdx].particles[self.particleIdx].offset.z, self.props[self.propIdx].particles[self.particleIdx].offset.y, -self.props[self.propIdx].particles[self.particleIdx].offset.x + self.propRaise),
-                -- rotation = vector3(-self.props[self.propIdx].particles[self.particleIdx].rotation.x, self.props[self.propIdx].particles[self.particleIdx].rotation.z, self.props[self.propIdx].particles[self.particleIdx].rotation.y)
+                position = vector3(
+                    self.props[self.propIdx].particles[self.particleIdx].offset.z + self.pos.x,
+                    self.props[self.propIdx].particles[self.particleIdx].offset.y + self.pos.y,
+                    -self.props[self.propIdx].particles[self.particleIdx].offset.x + self.propRaise
+                ),
                 rotation = vector3(0.0, 0.0, 0.0), -- Unused
                 currMode = self.currMode,
             }
@@ -169,7 +178,7 @@ function Alignment:HandleMoveEntity(data, cb)
 
     if (self.currMode == "prop") then
         -- Some conversions to get the correct values
-        self.props[self.propIdx].offset = vector3(self.propRaise - data.position.z, data.position.y, data.position.x)
+        self.props[self.propIdx].offset = vector3(self.propRaise - data.position.z, data.position.y - self.pos.y, data.position.x - self.pos.x)
         self.props[self.propIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z)
 
         local boneIdx = GetPedBoneIndex(PlayerPedId(), self.props[self.propIdx].bone)
@@ -188,8 +197,7 @@ function Alignment:HandleMoveEntity(data, cb)
         )
     elseif (self.currMode == "particle") then
         -- Some conversions to get the correct values
-        self.props[self.propIdx].particles[self.particleIdx].offset = vector3(self.propRaise - data.position.z, data.position.y, data.position.x)
-        -- self.props[self.propIdx].particles[self.particleIdx].rotation = vector3(data.rotation.x, data.rotation.y, data.rotation.z) -- Unused
+        self.props[self.propIdx].particles[self.particleIdx].offset = vector3(self.propRaise - data.position.z, data.position.y - self.pos.y, data.position.x - self.pos.x)
 
         SetParticleFxLoopedOffsets(
             self.props[self.propIdx].particles[self.particleIdx].handle,
@@ -277,8 +285,9 @@ function Alignment:HighlightParticleOrigins()
 end
 
 ---@param data AlignmentData
+---@param positionIdx? integer @Alignment position index, or nil to use 1
 ---@return {offset: Vector3Table, rotation: Vector3Table}[] | nil, FailReason?
-function Alignment:Enter(data)
+function Alignment:Enter(data, positionIdx)
     self = setmetatable({}, Alignment)
 
     -- First, validate the data input
@@ -308,6 +317,12 @@ function Alignment:Enter(data)
     local validAnims = IsAnimValid(data.dict, data.clip)
     if (not validAnims.dict) then return nil, "invalidDict" end
     if (not validAnims.clip) then return nil, "invalidClip" end
+
+    positionIdx = positionIdx or 1
+    local position = Config.Settings.alignmentPosition[positionIdx] or Config.Settings.alignmentPosition[1]
+
+    self.pos = position.getPosition()
+    self.propRaise = self.pos.z + 2.0
 
     Alignment.orgPos = GetEntityCoords(PlayerPedId())
     Alignment.active = self
@@ -386,7 +401,9 @@ function Alignment:Enter(data)
 
     local ply = PlayerPedId()
     FreezeEntityPosition(ply, true)
-    SetEntityCoords(ply, 0.0, 0.0, self.playerRaise, false, false, false, false)
+
+    local pos = position.getPosition()
+    SetEntityCoords(ply, pos.x, pos.y, pos.z, false, false, false, false)
 
     self:EnsureProps()
     self:SetGizmoEntity()
