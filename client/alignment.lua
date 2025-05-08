@@ -619,6 +619,6 @@ function Alignment:Enter(data, positionIdx)
 	return retVal
 end
 
-exports("StartEditing", function(data)
-	Alignment:Enter(data)
+exports("StartEditing", function(data, alignmentPosition)
+	Alignment:Enter(data, alignmentPosition)
 end)
