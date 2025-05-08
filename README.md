@@ -19,6 +19,7 @@ The entire project is the first effort to make a great alignment menu, and more 
 -   Server-wide presets to load pre-defined configurations.
 -   Export & import presets to share.
 -   Client-sided history to save your recent configurations.
+-   Visualize the data in Lua & JSON format for easy implementation.
 
 ## Get Started
 
@@ -114,6 +115,8 @@ You can paste these presets into the import input, press the import button and t
 <img src="https://github.com/user-attachments/assets/543885d7-ca03-4374-b473-83085684f182" style="width: 800px; height: auto;">
 
 <img src="https://r2.fivemanage.com/mS9apQyi6ahmBBRtVnQAv/PropalignerShowcaseAlignment.png" style="width: 800px; height: auto;">
+
+<img src="https://github.com/user-attachments/assets/05c04642-e1ec-4eea-b534-17ccbec75dc3" style="width: 800px; height: auto;">
 
 ## Development Details
 
