@@ -58,6 +58,7 @@ return {
     ["invalidParticleWarning"] = "Particles can not be validated efficiently. Please verify your inputs before proceeding.",
     ["missingProp"] = "Missing Prop",
     ["particle"] = "Particle",
+    ["visualizeData"] = "Visualize Data",
 
     -- Alignment Button Instructions
     ["instruct:save"] = "Save",

@@ -3,10 +3,9 @@ import Button from "./utils/Button";
 import ControlCameraIcon from "@mui/icons-material/ControlCamera";
 import React, { useEffect, useRef, useState } from "react";
 import { callback, listen, send } from "./utils/nui-events";
-import PropAlignments from "./props/PropAlignments";
 import { useModalContext } from "../context/ModalContext";
 import History from "./history/History";
-import { Accordion, LoadingOverlay } from "@mantine/core";
+import { LoadingOverlay } from "@mantine/core";
 import { useDebouncedValue } from "@mantine/hooks";
 import PresetMenu from "./presets/PresetMenu";
 import {
@@ -19,6 +18,8 @@ import {
 import AnimationSection from "./inputs/AnimationSection";
 import KeyboardReturnIcon from "@mui/icons-material/KeyboardReturn";
 import PropList from "./props/PropList";
+import { useVisualizeData } from "../context/VisualizeData";
+import CodeIcon from "@mui/icons-material/Code";
 
 interface LocalProps {
     bones: Bone[];
@@ -26,7 +27,8 @@ interface LocalProps {
 
 const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
     const T = useTranslation();
-    const { openModal, closeModal } = useModalContext();
+    const { closeModal } = useModalContext();
+    const { openVisualizeModal } = useVisualizeData();
     const [submitting, setSubmitting] = useState<boolean>(false);
     const [editingData, setEditingData] = useState<AlignmentData>({
         dict: "",
@@ -252,8 +254,8 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                         justifyContent: "center",
                         gap: "1rem",
                         gridTemplateColumns: displayBackButton
-                            ? "1fr 2fr"
-                            : "1fr",
+                            ? "auto 2fr auto"
+                            : "1fr auto",
                     }}
                 >
                     {displayBackButton && (
@@ -264,6 +266,10 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                             onClick={() =>
                                 send("CloseMenu", undefined, undefined)
                             }
+                            buttonStyling={{
+                                paddingLeft: "2rem !important",
+                                paddingRight: "2rem !important",
+                            }}
                         >
                             {T("backButton")}
                         </Button>
@@ -276,6 +282,28 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                         loading={submitting}
                     >
                         {T("startEditing")}
+                    </Button>
+                    <Button
+                        wide
+                        icon={<CodeIcon />}
+                        color="var(--teal3)"
+                        buttonStyling={{
+                            paddingLeft: "2rem !important",
+                            paddingRight: "2rem !important",
+                        }}
+                        onClick={() => {
+                            const data = {
+                                ...editingData,
+                                props: editingData.props.map(
+                                    ({ tempId, ...rest }) => rest
+                                ),
+                            };
+
+                            openVisualizeModal(data);
+                        }}
+                        loading={submitting}
+                    >
+                        {T("visualizeData")}
                     </Button>
                 </div>
             </form>

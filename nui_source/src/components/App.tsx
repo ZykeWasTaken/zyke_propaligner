@@ -3,6 +3,7 @@ import MainMenu from "./MainMenu";
 import { TranslationProvider } from "../context/Translation";
 import { ModalProvider } from "../context/ModalContext";
 import { ConfigProvider } from "../context/ConfigContext";
+import { VisualizeDataProvider } from "../context/VisualizeData";
 
 function App() {
     return (
@@ -11,8 +12,9 @@ function App() {
                 <ModalProvider>
                     <div style={{ width: "100vw", height: "100vh" }}>
                         <ThreeComponent />
-
-                        <MainMenu />
+                        <VisualizeDataProvider>
+                            <MainMenu />
+                        </VisualizeDataProvider>
                     </div>
                 </ModalProvider>
             </ConfigProvider>

@@ -34,6 +34,9 @@
 
     --yellow2: 255, 235, 59;
 
+    --teal2: 0, 150, 136; /* Teal Sharp/Semi-Sharp */
+    --teal3: 0, 137, 123; /* Teal Muted */
+
     --font: "Rubik", Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
     --xxlborderRadius: 1rem;
     --xlborderRadius: 0.7rem;
@@ -68,6 +71,18 @@ body {
 * {
     user-select: none;
     -webkit-user-drag: none;
+}
+
+/* Some weird forcing because simply applying it to some elements would not work */
+pre,
+code,
+.selectable,
+.force-selectable,
+.force-selectable * {
+    user-select: text !important;
+    -webkit-user-select: text !important;
+    -ms-user-select: text !important;
+    -moz-user-select: text !important;
 }
 
 ::-webkit-scrollbar {

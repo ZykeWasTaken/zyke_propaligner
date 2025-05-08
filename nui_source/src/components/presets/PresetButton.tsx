@@ -10,6 +10,8 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { send } from "../utils/nui-events";
 import LabelIcon from "@mui/icons-material/Label";
 import { Preset } from "../../types";
+import CodeIcon from "@mui/icons-material/Code";
+import { useVisualizeData } from "../../context/VisualizeData";
 
 const PresetButton: React.FC<{
     presetData: Preset;
@@ -27,6 +29,7 @@ const PresetButton: React.FC<{
     deletePreset,
 }) => {
     const [open, setOpen] = useState<boolean>(false);
+    const { openVisualizeModal } = useVisualizeData();
     const T = useTranslation();
 
     const availableOptions: DropDownItemData[] = [
@@ -53,6 +56,16 @@ const PresetButton: React.FC<{
             name: "delete",
             icon: <DeleteIcon />,
             onClick: () => deletePreset(presetData.id),
+        },
+        {
+            label: T("visualizeData"),
+            name: "visualize",
+            icon: <CodeIcon />,
+            onClick: () => {
+                const { created, ...data } = presetData.data;
+
+                openVisualizeModal(data, presetData.label);
+            },
         },
     ];
 
