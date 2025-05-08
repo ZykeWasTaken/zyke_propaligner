@@ -58,9 +58,12 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
 
         setTimeout(() => {
             setLoading(false);
+
+            const { created, ...rest } = data;
+
             setEditingData({
-                ...data,
-                props: data.props.map((item) => ({
+                ...rest,
+                props: rest.props.map((item) => ({
                     ...item,
                     tempId: Math.floor(Math.random() * 1000000),
                 })),
