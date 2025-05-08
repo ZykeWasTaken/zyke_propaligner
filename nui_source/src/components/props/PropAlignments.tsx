@@ -125,6 +125,7 @@ const PropAlignments: React.FC<PropAlignmentsProps> = ({
                 buttonStyling={{
                     width: "100%",
                 }}
+                removeDefaultComponent
             >
                 <CornerStyling color="rgba(var(--blue2))" hovered={hovering} />
                 <DottedBackground />
