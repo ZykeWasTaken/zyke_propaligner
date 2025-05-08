@@ -1,4 +1,3 @@
-import { Box } from "@mantine/core";
 import React from "react";
 
 interface CornerStylingProps {
@@ -15,8 +14,8 @@ const CornerStyling: React.FC<CornerStylingProps> = ({
     hovered = true,
 }) => {
     return (
-        <Box
-            sx={{
+        <div
+            style={{
                 width: "100%",
                 height: "100%",
                 position: "absolute",
@@ -26,10 +25,11 @@ const CornerStyling: React.FC<CornerStylingProps> = ({
                 top: 0,
                 left: 0,
                 willChange: "opacity",
+                zIndex: 1000,
             }}
         >
-            <Box
-                sx={{
+            <div
+                style={{
                     width: size,
                     height: size,
                     borderLeft: `${borderSize} solid ${color}`,
@@ -38,9 +38,9 @@ const CornerStyling: React.FC<CornerStylingProps> = ({
                     top: 0,
                     left: 0,
                 }}
-            ></Box>
-            <Box
-                sx={{
+            />
+            <div
+                style={{
                     width: size,
                     height: size,
                     borderRight: `${borderSize} solid ${color}`,
@@ -49,9 +49,9 @@ const CornerStyling: React.FC<CornerStylingProps> = ({
                     top: 0,
                     right: 0,
                 }}
-            ></Box>
-            <Box
-                sx={{
+            />
+            <div
+                style={{
                     width: size,
                     height: size,
                     borderRight: `${borderSize} solid ${color}`,
@@ -60,9 +60,9 @@ const CornerStyling: React.FC<CornerStylingProps> = ({
                     right: 0,
                     bottom: 0,
                 }}
-            ></Box>
-            <Box
-                sx={{
+            />
+            <div
+                style={{
                     width: size,
                     height: size,
                     borderLeft: `${borderSize} solid ${color}`,
@@ -71,8 +71,8 @@ const CornerStyling: React.FC<CornerStylingProps> = ({
                     left: 0,
                     bottom: 0,
                 }}
-            ></Box>
-        </Box>
+            />
+        </div>
     );
 };
 
