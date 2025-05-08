@@ -244,7 +244,22 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                 <Select
                     label={T("alignmentPosition")}
                     icon={<MapIcon />}
-                    content={config.Settings.alignmentPosition}
+                    content={config.Settings.alignmentPosition.map(
+                        (item: {
+                            name: string;
+                            label: string;
+                            getPosition: () => {
+                                x: number;
+                                y: number;
+                                z: number;
+                            };
+                        }) => {
+                            return {
+                                label: item.label,
+                                value: item.name,
+                            };
+                        }
+                    )}
                     onChange={(value) => setAlignmentPosition(value)}
                     value={alignmentPosition}
                 />
