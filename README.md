@@ -35,7 +35,7 @@ You can paste these presets into the import input, press the import button and t
 {
     "label": "Curry (Dual Prop)",
     "data": {
-		"dict": "anim@scripted@island@special_peds@pavel@hs4_pavel_ig5_caviar_p1",
+	"dict": "anim@scripted@island@special_peds@pavel@hs4_pavel_ig5_caviar_p1",
         "clip": "base_idle",
         "props": [
             {"rotation": {"x": 0, "y": 0, "z": -50}, "prop": "prop_cs_plate_01", "bone": 60309, "offset": {"x": 0, "y": 0, "z": 0}},
@@ -51,7 +51,7 @@ You can paste these presets into the import input, press the import button and t
 {
     "label": "Water Bottle",
     "data": {
-		"dict": "mp_player_intdrink",
+	"dict": "mp_player_intdrink",
         "clip": "loop_bottle",
         "props": [
             {"rotation": {"x": -103.202, "y": -68.066, "z": 2.814}, "prop": "prop_ld_flow_bottle", "bone": 18905, "offset": {"x": 0.122, "y": -0.038, "z": 0.033}}
@@ -63,28 +63,28 @@ You can paste these presets into the import input, press the import button and t
 ### Burger
 ```json
 {
-	"label": "Burger",
-	"data": {
-		"dict": "mp_player_inteat@burger",
-		"clip": "mp_player_int_eat_burger",
-		"props":[
-			{"bone": 18905, "model": "prop_cs_burger_01", "rotation": {"x": 31.162, "y": 136.033, "z": -13.003}, "prop": "prop_cs_burger_01", "offset": {"x": 0.144, "y": 0.027, "z": 0.040}}
-		]
-	}
+    "label": "Burger",
+    "data": {
+        "dict": "mp_player_inteat@burger",
+        "clip": "mp_player_int_eat_burger",
+        "props":[
+            {"bone": 18905, "model": "prop_cs_burger_01", "rotation": {"x": 31.162, "y": 136.033, "z": -13.003}, "prop": "prop_cs_burger_01", "offset": {"x": 0.144, "y": 0.027, "z": 0.040}}
+        ]
+    }
 }
 ```
 
 ### Soda Can (Sprunk)
 ```json
 {
-	"label":"Soda Can",
-	"data": {
-		"dict":"mp_player_intdrink",
-		"clip":"loop_bottle",
-		"props": [
-			{"bone": 18905,"model": "prop_ld_can_01b", "rotation": {"x":-103.202,"y":-68.066,"z":2.814}, "prop": "prop_ld_can_01b", "offset":{"x": 0.122, "y": -0.007, "z": 0.035}}
-		]
-	}
+    "label":"Soda Can",
+    "data": {
+        "dict":"mp_player_intdrink",
+        "clip":"loop_bottle",
+        "props": [
+            {"bone": 18905,"model": "prop_ld_can_01b", "rotation": {"x":-103.202,"y":-68.066,"z":2.814}, "prop": "prop_ld_can_01b", "offset":{"x": 0.122, "y": -0.007, "z": 0.035}}
+        ]
+    }
 }
 ```
 
@@ -94,11 +94,11 @@ You can paste these presets into the import input, press the import button and t
 {
     "label": "Cigarette & Particles",
     "data": {
-		"dict": "amb@world_human_aa_smoke@male@idle_a",
+        "dict": "amb@world_human_aa_smoke@male@idle_a",
         "clip": "idle_a",
         "props": [
             {"bone": 64097, "prop": "ng_proc_cigarette01a", "rotation": {"x": 100, "y": 0, "z": 100}, "offset": {"x": 0.02, "y": 0.02, "z": -0.008},
-				"particles": [
+                "particles": [
                     {"clip": "exp_grd_bzgas_smoke", "size": 1, "dict": "core", "offset": {"x": -0.068, "y": 0.0, "z": 0.0}}
                 ]
             }
