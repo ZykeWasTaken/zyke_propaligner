@@ -60,6 +60,7 @@ return {
     ["particle"] = "Particle",
     ["visualizeData"] = "Visualize Data",
     ["alignmentPosition"] = "Alignment Position",
+    ["baseAnimations"] = "Base Animations",
 
     -- Alignment Button Instructions
     ["instruct:save"] = "Save",

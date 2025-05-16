@@ -23,12 +23,15 @@ import CodeIcon from "@mui/icons-material/Code";
 import Select from "./utils/Select";
 import { useConfig } from "../context/ConfigContext";
 import MapIcon from "@mui/icons-material/Map";
+import { MdAnimation } from "react-icons/md";
+import { Animation } from "./MainMenu";
 
 interface LocalProps {
     bones: Bone[];
+    animations: Animation[];
 }
 
-const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
+const AlignmentInputs: React.FC<LocalProps> = ({ bones, animations }) => {
     const T = useTranslation();
     const config = useConfig();
     const { closeModal } = useModalContext();
@@ -236,32 +239,59 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones }) => {
                 </div>
             </div>
             <form onSubmit={handleForm}>
+                <div
+                    style={{
+                        display: "grid",
+                        gridTemplateColumns: "1fr 1fr",
+                        gap: "1rem",
+                    }}
+                >
+                    <Select
+                        label={T("baseAnimations")}
+                        icon={<MdAnimation />}
+                        value={editingData.dict + ":" + editingData.clip}
+                        content={animations.map((item) => ({
+                            label: item.label,
+                            name: item.dict + ":" + item.clip,
+                        }))}
+                        onChange={(value) => {
+                            const [dict, clip] = value.split(":");
+
+                            setEditingData((prev) => ({
+                                ...prev,
+                                dict,
+                                clip,
+                            }));
+                        }}
+                    />
+
+                    <Select
+                        label={T("alignmentPosition")}
+                        icon={<MapIcon />}
+                        content={config.Settings.alignmentPosition.map(
+                            (item: {
+                                name: string;
+                                label: string;
+                                getPosition: () => {
+                                    x: number;
+                                    y: number;
+                                    z: number;
+                                };
+                            }) => {
+                                return {
+                                    label: item.label,
+                                    value: item.name,
+                                };
+                            }
+                        )}
+                        onChange={(value) => setAlignmentPosition(value)}
+                        value={alignmentPosition}
+                    />
+                </div>
+
                 <AnimationSection
                     editingData={editingData}
                     setEditingData={setEditingData}
-                />
-
-                <Select
-                    label={T("alignmentPosition")}
-                    icon={<MapIcon />}
-                    content={config.Settings.alignmentPosition.map(
-                        (item: {
-                            name: string;
-                            label: string;
-                            getPosition: () => {
-                                x: number;
-                                y: number;
-                                z: number;
-                            };
-                        }) => {
-                            return {
-                                label: item.label,
-                                value: item.name,
-                            };
-                        }
-                    )}
-                    onChange={(value) => setAlignmentPosition(value)}
-                    value={alignmentPosition}
                 />
 
                 <PropList

@@ -7,12 +7,19 @@ import { useModalContext } from "../context/ModalContext";
 import { Bone } from "../types";
 import { useEffect, useState } from "react";
 
+export interface Animation {
+    label: string;
+    dict: string;
+    clip: string;
+}
+
 const MainMenu = () => {
     const T = useTranslation();
     const { openModal, closeModal, suspendModals, unsuspendModals } =
         useModalContext();
 
     const [bones, setBones] = useState<Bone[]>([]);
+    const [animations, setAnimations] = useState<Animation[]>([]);
 
     listen("SetOpen", (val: boolean) => {
         if (val) {
@@ -44,6 +51,8 @@ const MainMenu = () => {
         callback("GetBones").then((bones: Bone[]) =>
             setBones(formatBones(bones))
         );
+
+        callback("GetBaseAnimations").then((res) => setAnimations(res));
     }, []);
 
     useEffect(() => {
@@ -62,7 +71,7 @@ const MainMenu = () => {
                     width: "55rem",
                 }}
             >
-                <AlignmentInputs bones={bones} />
+                <AlignmentInputs bones={bones} animations={animations} />
             </Modal>
         </>
     );

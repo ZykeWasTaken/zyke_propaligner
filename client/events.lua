@@ -112,6 +112,10 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
     elseif (event == "AlignmentMenuMounted") then
         AlignmentMenuMounted = true
         return cb("ok")
+    elseif (event == "GetBaseAnimations") then
+        local animations = load(LoadResourceFile("zyke_propaligner", "shared/animations.lua"))()
+
+        return cb(animations)
     end
 
     cb("ok")
