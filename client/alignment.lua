@@ -225,9 +225,10 @@ function Alignment:EnsureAnim(skipCheck)
     if (not IsPlayingAnim(self.anim.dict, self.anim.clip)) then
         self.anim.stoppedAnim = 0
 
-        local animDur = GetAnimDuration(self.anim.dict, self.anim.clip) * (1.0 / (self.anim.animSpeedIdx * self.anim.speedMultiplier))
+        local isAnimInf = IsAnimInfinite(self.anim.dict, self.anim.clip)
+        local animDur = isAnimInf and -1 or math.floor((GetAnimDuration(self.anim.dict, self.anim.clip) * (1.0 / (self.anim.animSpeedIdx * self.anim.speedMultiplier)) * 1000))
 
-        TaskPlayAnim(ply, self.anim.dict, self.anim.clip, 1.0, 1.0, math.floor(animDur * 1000), 49, 0.0, false, false, false)
+        TaskPlayAnim(ply, self.anim.dict, self.anim.clip, 1.0, 1.0, animDur, 49, 0.0, false, false, false)
 
         -- Wait for the animation to start playing
         while (not IsPlayingAnim(self.anim.dict, self.anim.clip)) do Wait(1) end

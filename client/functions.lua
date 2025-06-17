@@ -20,6 +20,10 @@ function IsAnimValid(dict, clip)
     }
 end
 
+function IsAnimInfinite(dict, clip)
+    return json.encode(GetAnimDuration(dict, clip)) == "NaN"
+end
+
 ---@param dict string
 ---@param clip string
 ---@return boolean
