@@ -1,7 +1,7 @@
 fx_version "cerulean"
 game "gta5"
 lua54 "yes"
-version "1.4.1"
+version "1.4.2"
 
 shared_scripts {
     "@zyke_lib/imports.lua",
@@ -22,12 +22,12 @@ client_scripts {
 	"client/alignment.lua",
 }
 
-ui_page "nui/index.html"
--- ui_page "nui_source/hot_reload.html"
+-- ui_page "nui/index.html"
+ui_page "nui_source/hot_reload.html"
 
 files {
-    "nui/**/*",
-    -- "nui_source/hot_reload.html",
+    -- "nui/**/*",
+    "nui_source/hot_reload.html",
 
     "locales/*.lua",
     "shared/animations.lua",
