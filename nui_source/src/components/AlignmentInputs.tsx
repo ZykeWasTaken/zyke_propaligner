@@ -366,7 +366,6 @@ const AlignmentInputs: React.FC<LocalProps> = ({ bones, animations }) => {
 
                             openVisualizeModal(data);
                         }}
-                        loading={submitting}
                     >
                         {T("visualizeData")}
                     </Button>
