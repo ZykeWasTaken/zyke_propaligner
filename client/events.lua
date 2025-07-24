@@ -4,7 +4,9 @@ RegisterNUICallback("Eventhandler", function(passed, cb)
     local event <const> = passed.event
     local data <const> = passed.data
 
-    if (event == "CloseMenu") then
+    if (event == "RetrieveLoadedStatus") then
+        cb(HasLoaderFinished)
+    elseif (event == "CloseMenu") then
         CloseMenu()
 
         cb("ok")

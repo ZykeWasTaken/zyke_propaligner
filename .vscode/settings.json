@@ -1,3 +1,9 @@
 {
-    "Lua.diagnostics.globals": ["Z", "Translations", "MySQL", "T"]
+    "Lua.diagnostics.globals": [
+        "Z",
+        "Translations",
+        "MySQL",
+        "T",
+        "HasLoaderFinished"
+    ]
 }

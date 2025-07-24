@@ -9,7 +9,10 @@ import "./styling/text.css";
 import "./styling/progress.css";
 import "./styling/pagination.css";
 import App from "./components/App";
+import EnsureLoader from "./context/EnsureLoader";
 
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-    <App />
+    <EnsureLoader>
+        <App />
+    </EnsureLoader>
 );
