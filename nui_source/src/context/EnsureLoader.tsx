@@ -23,7 +23,7 @@ const EnsureLoader = ({
                 setHasLoaded(res as boolean);
                 if (timer) clearTimeout(timer);
 
-                return true;
+                return res as boolean;
             } catch (err) {
                 if (timer) clearTimeout(timer);
 
