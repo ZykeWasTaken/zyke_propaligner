@@ -134,6 +134,15 @@ function ConfigureAlignments(data, backButton)
         -- Clear out temporary values
         val.props[i].tempId = nil
         val.props[i].entity = nil
+
+        -- Ensure that the values have decimals
+        val.props[i].offset.x = val.props[i].offset.x + 0.0
+        val.props[i].offset.y = val.props[i].offset.y + 0.0
+        val.props[i].offset.z = val.props[i].offset.z + 0.0
+
+        val.props[i].rotation.x = val.props[i].rotation.x + 0.0
+        val.props[i].rotation.y = val.props[i].rotation.y + 0.0
+        val.props[i].rotation.z = val.props[i].rotation.z + 0.0
     end
 
     return val
