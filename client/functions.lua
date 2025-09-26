@@ -130,6 +130,12 @@ function ConfigureAlignments(data, backButton)
     local val = Citizen.Await(p)
     RemoveEventHandler(event)
 
+    for i = 1, #val.props do
+        -- Clear out temporary values
+        val.props[i].tempId = nil
+        val.props[i].entity = nil
+    end
+
     return val
 end
 
